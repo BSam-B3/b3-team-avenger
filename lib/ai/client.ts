@@ -74,11 +74,11 @@ async function logUsage(
 
 // ─── Backend detection ────────────────────────────────────────────────────────
 
-// Groq is always first — order reflects actual priority
+// Gemini first — fallback to Groq when quota full
 export function getAvailableBackends(): AIBackend[] {
   const backends: AIBackend[] = []
-  if (process.env.GROQ_API_KEY)      backends.push('groq')
   if (process.env.GEMINI_API_KEY)    backends.push('gemini')
+  if (process.env.GROQ_API_KEY)      backends.push('groq')
   if (process.env.ANTHROPIC_API_KEY) backends.push('claude')
   if (process.env.OPENAI_API_KEY)    backends.push('openai')
   backends.push('template')
