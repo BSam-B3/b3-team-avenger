@@ -60,8 +60,10 @@ ${TEAM_ROSTER}
 }
 กฎ:
 - tasks: เลือก 1-4 agent ที่เหมาะสมที่สุด ห้าม assign ซ้ำซ้อน
-- task_detail: บอกสิ่งที่ต้องทำชัดเจน ไม่ใช่แค่ชื่อ topic
-- ถ้าไม่ชัดเจนหรือเป็นแชทธรรมดา → assigned_to: Janie`
+- task_detail: ระบุสิ่งที่ agent ต้องวิเคราะห์หรือแนะนำ พร้อมบริบทจาก directive
+- ถ้าเป็นแชทธรรมดา / ถามสถานะ → assigned_to: Janie
+- ถ้า task ต้องการข้อมูลภายนอก (อ่าน email, ดูไฟล์) แต่ไม่มีข้อมูลนั้น → task_detail ให้บอกว่า "B3 ต้องการ [อะไร] กรุณาวางข้อมูลนั้นมาเพื่อดำเนินการต่อ"
+- email/อีเมล → Nam, จัดซื้อ/vendor → Ferin, finance/งบ → Metha, legal → Kitti`
 
   const fallback: OrchestrateResult = {
     ack: 'รับทราบค่ะ จะดำเนินการทันที',
@@ -99,6 +101,7 @@ function janieRuleBased(msg: string): OrchestrateResult {
     [['risk', 'security', 'audit', 'ความเสี่ยง'], 'Kom'],
     [['hr', 'hire', 'onboard', 'knowledge', 'พนักงาน'], 'Raps'],
     [['procurement', 'vendor', 'จัดซื้อ', 'ราคา', 'เปรียบราคา', 'ผู้ขาย', 'supplier', 'po', 'price'], 'Ferin'],
+    [['email', 'อีเมล', 'mail', 'inbox', 'gmail', 'ส่งเมล', 'เมล'], 'Nam'],
   ]
 
   for (const [keywords, agent] of KEYWORDS) {

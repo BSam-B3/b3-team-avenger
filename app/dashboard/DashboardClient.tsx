@@ -30,14 +30,14 @@ interface AgentLog {
 const AGENTS = [
   { id: 'Janie',  th: 'คุณเจนี่',  role: 'AI Orchestrator' },
   { id: 'Joe',    th: 'คุณโจ',     role: 'Backend Architect' },
-  { id: 'Enjoy',  th: 'คุณเอ็นจอย', role: 'Frontend Engineer' },
-  { id: 'Metha',  th: 'คุณเมธา',   role: 'CFO' },
+  { id: 'Enjoy',  th: 'คุณเอนจอย', role: 'Frontend Engineer' },
   { id: 'Fenton', th: 'คุณเฟนตัน', role: 'Quality Officer' },
   { id: 'Karn',   th: 'คุณกานต์',  role: 'Marketing Lead' },
-  { id: 'Kitti',  th: 'คุณกิตติ',  role: 'Data Analytics' },
-  { id: 'Nara',   th: 'คุณนารา',   role: 'Content Creator' },
-  { id: 'Pim',    th: 'คุณพิม',    role: 'UX Designer' },
-  { id: 'Win',    th: 'คุณวิน',    role: 'DevOps Engineer' },
+  { id: 'Kitti',  th: 'คุณกิตติ',  role: 'Legal & Compliance' },
+  { id: 'Nara',   th: 'คุณนารา',   role: 'Creative Director' },
+  { id: 'Metha',  th: 'คุณเมธา',   role: 'CFO' },
+  { id: 'Pim',    th: 'คุณพิม',    role: 'Head of Accounting' },
+  { id: 'Win',    th: 'คุณวิน',    role: 'Biz Development' },
   { id: 'Nam',    th: 'คุณน้ำ',    role: 'Customer Support' },
   { id: 'Kom',    th: 'คุณคมน์',   role: 'Risk Officer' },
   { id: 'Raps',   th: 'แรปส์',    role: 'HR & Knowledge' },
@@ -362,13 +362,17 @@ function LeftPanel({ tasks, selectedAgent, onSelectAgent }: {
       </div>
 
       {/* AI AGENTS */}
-      <div className="panel shrink-0">
+      <div className="panel shrink-0" style={{ maxHeight: 240, display:'flex', flexDirection:'column' }}>
         <div className="panel-header">
-          <span>AI AGENTS</span>
-          <span style={{ cursor:'pointer', color:'#4b5563' }}>✕</span>
+          <span>AI AGENTS ({AGENTS.length})</span>
+          <span style={{ fontSize:9, color:'#22c55e' }}>
+            {AGENTS.filter(a => getStatus(a.id, tasks) !== 'idle').length > 0
+              ? `${AGENTS.filter(a => getStatus(a.id, tasks) !== 'idle').length} active`
+              : 'all idle'}
+          </span>
         </div>
-        <div>
-          {AGENTS.slice(0, 5).map(a => {
+        <div style={{ overflowY:'auto', flex:1 }}>
+          {AGENTS.map(a => {
             const st = getStatus(a.id, tasks)
             return (
               <div key={a.id} onClick={() => onSelectAgent(selectedAgent === a.id ? null : a.id)}

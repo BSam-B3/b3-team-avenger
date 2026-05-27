@@ -318,6 +318,13 @@ export default function HistoryPage() {
 
   useEffect(() => { fetchHistory(page) }, [page, fetchHistory])
 
+  // Auto-refresh every 15s when on page 1
+  useEffect(() => {
+    if (page !== 1) return
+    const t = setInterval(() => fetchHistory(1), 15000)
+    return () => clearInterval(t)
+  }, [page, fetchHistory])
+
   function goPage(p: number) {
     setPage(p)
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -352,11 +359,25 @@ export default function HistoryPage() {
             📜 ประวัติการสนทนา
           </span>
         </div>
-        {data && (
-          <span style={{ fontSize: 11, color: '#475569' }}>
-            {data.total.toLocaleString()} conversations
-          </span>
-        )}
+        <div style={{ display:'flex', alignItems:'center', gap: 10 }}>
+          {data && (
+            <span style={{ fontSize: 11, color: '#475569' }}>
+              {data.total.toLocaleString()} conversations
+            </span>
+          )}
+          <button
+            onClick={() => fetchHistory(page)}
+            disabled={loading}
+            style={{
+              background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)',
+              color: loading ? '#475569' : '#f59e0b', borderRadius: 6,
+              padding: '3px 10px', fontSize: 10, cursor: loading ? 'default' : 'pointer',
+              fontWeight: 600,
+            }}
+          >
+            {loading ? '⏳' : '🔄'} รีเฟรช
+          </button>
+        </div>
       </div>
 
       {/* ── Content area ── */}
