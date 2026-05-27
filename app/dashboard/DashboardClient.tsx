@@ -2,9 +2,11 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import OfficeMap from './OfficeMap'
+import Notifications from '@/app/components/Notifications'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -664,6 +666,22 @@ function TopNav({ now, tasks }: { now: Date | null; tasks: AgentTask[] }) {
           <div style={{ fontSize:9, fontWeight:900, color:'#a855f7' }}>{pct}%</div>
         </div>
 
+        {/* Quick links */}
+        <Link href="/room" style={{
+          padding:'3px 8px', borderRadius:5, fontSize:9, fontWeight:700,
+          background:'rgba(129,140,248,0.12)', border:'1px solid rgba(129,140,248,0.25)',
+          color:'#818cf8', textDecoration:'none', letterSpacing:0.5,
+        }}>
+          🏢 ROOM
+        </Link>
+        <Link href="/history" style={{
+          padding:'3px 8px', borderRadius:5, fontSize:9, fontWeight:700,
+          background:'rgba(245,158,11,0.12)', border:'1px solid rgba(245,158,11,0.25)',
+          color:'#f59e0b', textDecoration:'none', letterSpacing:0.5,
+        }}>
+          📋 HISTORY
+        </Link>
+
         {/* clock */}
         <div style={{ fontSize:10, fontFamily:'monospace', color:'#4b5563' }}>
           🕐 {now?.toLocaleTimeString('th-TH') ?? '--:--:--'}
@@ -745,6 +763,9 @@ export default function DashboardClient({
     }}>
       {/* Top Nav */}
       <TopNav now={now} tasks={tasks} />
+
+      {/* Agent done toast notifications */}
+      <Notifications />
 
       {/* Body */}
       <div style={{ flex:1, display:'flex', gap:8, padding:'8px', overflow:'hidden' }}>

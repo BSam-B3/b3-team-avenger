@@ -266,6 +266,12 @@ export default function PrivateRoom() {
           <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 600 }}>
             🏢 ห้องผู้บริหาร
           </span>
+          <span style={{ color: '#1e293b' }}>│</span>
+          <Link href="/history" style={{
+            fontSize: 11, color: '#f59e0b', textDecoration: 'none', fontWeight: 600,
+          }}>
+            📋 ประวัติ
+          </Link>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <button
