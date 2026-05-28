@@ -45,7 +45,10 @@ export async function fetchCITEmails(limit = 15): Promise<CITEmail[]> {
     await client.mailboxOpen('INBOX')
 
     // Fetch last N messages
-    const msgs = await client.fetch(`${Math.max(1, (await client.status('INBOX', { messages: true })).messages - limit + 1)}:*`, {
+    const inboxStatus = await client.status('INBOX', { messages: true })
+    const totalMsgs = inboxStatus.messages ?? 0
+    const startSeq = Math.max(1, totalMsgs - limit + 1)
+    const msgs = await client.fetch(`${startSeq}:*`, {
       envelope: true,
       flags:    true,
     })
