@@ -91,15 +91,15 @@ export async function GET(req: NextRequest) {
 
       // Remove old nightly entries (keep only last 3 weeks)
       const threeWeeksAgo = new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString()
-      const { count } = await supabase
+      const { data: deleted } = await supabase
         .from('agent_knowledge')
         .delete()
         .eq('agent_id', agentId)
         .like('source', 'nightly_%')
         .lt('created_at', threeWeeksAgo)
-        .select('*', { count: 'exact', head: true })
+        .select('id')
 
-      stats.chunksDeleted += count ?? 0
+      stats.chunksDeleted += deleted?.length ?? 0
       stats.digests++
       stats.totalAgents++
     } catch { /* skip agent */ }
