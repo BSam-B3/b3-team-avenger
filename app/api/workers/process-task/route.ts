@@ -21,6 +21,7 @@ import { webSearch, shouldSearch } from '@/lib/ai/search'
 import { loadAgentContext } from '@/lib/agents/context'
 import { getConsultation } from '@/lib/agents/consult'
 import { getEmailContext, detectEmailScope } from '@/lib/email'
+import { detectCustomerInfo, proposeCustomerUpdates } from '@/lib/customers/learn'
 
 const EMAIL_KEYWORDS     = ['email', 'อีเมล', 'mail', 'inbox', 'gmail', 'outlook', 'ส่งเมล', 'เมล', 'สรุปเมล', 'ตรวจเมล', 'pandv', 'cit']
 const EXPLOITER_KEYWORDS = ['เข้าถึง', 'remote', 'ssh', 'server', 'script', 'สแกน', 'scan', 'เครื่อง', 'network', 'ติดตั้ง', 'install', 'agent', 'shortcut', 'ทางลัด', 'exploit', 'automate', 'อัตโนมัติ', 'rdp', 'vpn']
@@ -98,6 +99,62 @@ async function generateResponse(
       }
     }
 
+    // Calendar: Janie creates event directly via Google Calendar API
+    const CALENDAR_KEYWORDS = ['นัด', 'ตาราง', 'calendar', 'schedule', 'นัดหมาย', 'on-site', 'ออนไซท์', 'กำหนดการ']
+    if (agentId === 'Janie' && CALENDAR_KEYWORDS.some(kw => taskDetail.toLowerCase().includes(kw))) {
+      const appUrlCal = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3001'
+
+      // Check if calendar is connected
+      const calStatus = await fetch(`${appUrlCal}/api/calendar`).then(r => r.json()).catch(() => ({ connected: false }))
+
+      if (calStatus.connected) {
+        // AI parses natural language → structured event
+        const parsePrompt = `แปลงคำสั่งนัดหมายต่อไปนี้เป็น JSON เท่านั้น (ไม่มีข้อความอื่น):
+{
+  "summary": "ชื่อนัด",
+  "startTime": "ISO8601 datetime (Asia/Bangkok) เช่น 2026-05-29T10:00:00+07:00",
+  "endTime": "ISO8601 datetime (Asia/Bangkok) เช่น 2026-05-29T11:00:00+07:00",
+  "description": "รายละเอียด (ถ้ามี)",
+  "recurrence": "RRULE string (ถ้าเป็น recurring) หรือ null",
+  "remindMinutes": 60
+}
+
+วันนี้: ${new Date().toLocaleDateString('th-TH', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+พรุ่งนี้: ${new Date(Date.now() + 86400000).toISOString().slice(0,10)}`
+
+        const parsed = await callAITracked(
+          { system: parsePrompt, userMessage: taskDetail, maxTokens: 200 },
+          'Janie', taskId,
+        )
+        try {
+          const m = parsed.match(/\{[\s\S]*\}/)
+          if (m) {
+            const evt = JSON.parse(m[0]) as {
+              summary: string; startTime: string; endTime: string
+              description?: string; recurrence?: string; remindMinutes?: number
+            }
+            const created = await fetch(`${appUrlCal}/api/calendar`, {
+              method:  'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body:    JSON.stringify(evt),
+            }).then(r => r.json())
+
+            if (created.ok) {
+              return {
+                reply: `✅ สร้างนัด "${evt.summary}" ใน Google Calendar แล้วค่ะ — sync มือถือได้เลย 📅${created.htmlLink ? `\n🔗 ${created.htmlLink}` : ''}`,
+                searchUsed: false,
+              }
+            }
+          }
+        } catch { /* fall through to normal reply */ }
+      } else {
+        return {
+          reply: `📅 ยังไม่ได้เชื่อมต่อ Google Calendar ค่ะ\nกรุณาไปที่ **/settings** แล้วกด **"เชื่อมต่อ Google Calendar"** ก่อนนะคะ`,
+          searchUsed: false,
+        }
+      }
+    }
+
     // Exploiter: generate approval request instead of direct response
     if (agentId === 'Exploiter' && isExploiterTask(taskDetail)) {
       const exploiterPrompt = `${context}
@@ -166,14 +223,26 @@ Task จาก Janie: "${taskDetail}"
     // Extract [LEARN: ...] tag and save to B3 memory (non-blocking)
     const learnMatch = rawReply.match(/\[LEARN:\s*(.+?)\]/s)
     const reply = rawReply.replace(/\[LEARN:[^\]]*\]/g, '').trim()
+    const appUrl3 = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3001'
+
     if (learnMatch?.[1]) {
-      const appUrl3 = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3001'
       void fetch(`${appUrl3}/api/b3/memory`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ memory: learnMatch[1].trim(), source: agentId }),
       }).catch(() => {})
     }
+
+    // Customer intelligence — detect + propose updates from task+reply (non-blocking)
+    void (async () => {
+      try {
+        const combined = `[Task] ${taskDetail}\n[Response] ${reply}`
+        const proposals = await detectCustomerInfo(combined, agentId)
+        if (proposals.length > 0) {
+          await proposeCustomerUpdates(proposals, agentId, combined, appUrl3)
+        }
+      } catch { /* non-critical */ }
+    })()
 
     return { reply, searchUsed }
   } catch {
