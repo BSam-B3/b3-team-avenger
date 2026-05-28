@@ -100,7 +100,7 @@ async function generateResponse(
     }
 
     // Calendar: Janie creates event directly via Google Calendar API
-    const CALENDAR_KEYWORDS = ['นัด', 'ตาราง', 'calendar', 'schedule', 'นัดหมาย', 'on-site', 'ออนไซท์', 'กำหนดการ']
+    const CALENDAR_KEYWORDS = ['นัด', 'ตาราง', 'calendar', 'schedule', 'นัดหมาย', 'on-site', 'ออนไซท์', 'กำหนดการ', 'แจ้งเตือน', 'reminder', 'เตือน', 'เวลา', 'โมง', 'appointment']
     if (agentId === 'Janie' && CALENDAR_KEYWORDS.some(kw => taskDetail.toLowerCase().includes(kw))) {
       const appUrlCal = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3001'
 
@@ -149,7 +149,7 @@ async function generateResponse(
         } catch { /* fall through to normal reply */ }
       } else {
         return {
-          reply: `📅 ยังไม่ได้เชื่อมต่อ Google Calendar ค่ะ\nกรุณาไปที่ **/settings** แล้วกด **"เชื่อมต่อ Google Calendar"** ก่อนนะคะ`,
+          reply: `📅 ยังไม่ได้เชื่อมต่อ Google Calendar ค่ะ\n\n👉 ไปที่ **b3-team-avenger.vercel.app/settings** → หัวข้อ **📅 Google Calendar** → กด **"+ Connect"** แล้ว login Google\n\nหลังจากนั้นพิมพ์คำสั่งนี้ใหม่อีกครั้ง — Janie จะสร้างนัดให้ทันทีค่ะ`,
           searchUsed: false,
         }
       }

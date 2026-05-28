@@ -11,7 +11,13 @@
  *   • Dark theme matching /room (background #030712, gold #f59e0b, indigo #818cf8)
  */
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -296,34 +302,48 @@ function ConvCard({ conv, index }: { conv: Conversation; index: number }) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function HistoryPage() {
-  const [data,    setData]    = useState<HistoryResponse | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error,   setError]   = useState<string | null>(null)
-  const [page,    setPage]    = useState(1)
+  const [data,      setData]      = useState<HistoryResponse | null>(null)
+  const [loading,   setLoading]   = useState(true)
+  const [error,     setError]     = useState<string | null>(null)
+  const [page,      setPage]      = useState(1)
+  const [newCount,  setNewCount]  = useState(0)   // badge: new convs since last load
+  const latestIdRef = useRef<string | null>(null)
 
-  const fetchHistory = useCallback(async (p: number) => {
-    setLoading(true)
+  const fetchHistory = useCallback(async (p: number, silent = false) => {
+    if (!silent) setLoading(true)
     setError(null)
     try {
       const res = await fetch(`/api/history?page=${p}&limit=20`)
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const json: HistoryResponse = await res.json()
       setData(json)
+      setNewCount(0)
+      // Track newest ID so Realtime can detect truly new conversations
+      if (json.conversations[0]) latestIdRef.current = json.conversations[0].id
     } catch (e) {
       setError(e instanceof Error ? e.message : 'failed to load')
     } finally {
-      setLoading(false)
+      if (!silent) setLoading(false)
     }
   }, [])
 
   useEffect(() => { fetchHistory(page) }, [page, fetchHistory])
 
-  // Auto-refresh every 15s when on page 1
+  // Realtime: show badge when new conversation arrives — NO auto-refresh
   useEffect(() => {
-    if (page !== 1) return
-    const t = setInterval(() => fetchHistory(1), 15000)
-    return () => clearInterval(t)
-  }, [page, fetchHistory])
+    const channel = supabase
+      .channel('history_new_convs')
+      .on('postgres_changes', {
+        event: 'INSERT', schema: 'public', table: 'janie_conversations',
+      }, (payload) => {
+        // Only count if it's genuinely newer than what we loaded
+        if (payload.new.id !== latestIdRef.current) {
+          setNewCount(c => c + 1)
+        }
+      })
+      .subscribe()
+    return () => { void supabase.removeChannel(channel) }
+  }, [])
 
   function goPage(p: number) {
     setPage(p)
@@ -364,6 +384,20 @@ export default function HistoryPage() {
             <span style={{ fontSize: 11, color: '#475569' }}>
               {data.total.toLocaleString()} conversations
             </span>
+          )}
+          {/* New badge — click to load without disrupting reading */}
+          {newCount > 0 && (
+            <button
+              onClick={() => fetchHistory(1)}
+              style={{
+                background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.4)',
+                color: '#4ade80', borderRadius: 20, padding: '4px 12px',
+                fontSize: 11, cursor: 'pointer', fontWeight: 700,
+                animation: 'pulse 2s ease-in-out infinite',
+              }}
+            >
+              ● {newCount} สนทนาใหม่ — คลิกเพื่อโหลด
+            </button>
           )}
           <button
             onClick={() => fetchHistory(page)}
