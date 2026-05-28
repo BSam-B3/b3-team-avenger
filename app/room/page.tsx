@@ -11,9 +11,17 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
+import { createClient } from '@supabase/supabase-js'
 import SpriteCharacter from '../dashboard/SpriteCharacter'
 import JanieChat from './JanieChat'
 import UsagePanel from './UsagePanel'
+import LiveFeed from './LiveFeed'
+import TaskToast from './TaskToast'
+
+const supabaseRoom = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -202,6 +210,25 @@ export default function PrivateRoom() {
   const [janieLooking, setJanieLooking] = useState(false)
   const [chatOpen,     setChatOpen]    = useState(false)
   const [usageOpen,    setUsageOpen]   = useState(false)
+  const [busyAgents,   setBusyAgents]  = useState<Set<string>>(new Set())
+
+  // Track in_progress tasks → busy agents
+  useEffect(() => {
+    const refresh = async () => {
+      const { data } = await supabaseRoom
+        .from('agent_tasks')
+        .select('assigned_to')
+        .eq('status', 'in_progress')
+      setBusyAgents(new Set((data ?? []).map((t: { assigned_to: string }) => t.assigned_to)))
+    }
+    refresh()
+
+    const ch = supabaseRoom
+      .channel('room_busy_agents')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'agent_tasks' }, refresh)
+      .subscribe()
+    return () => { void supabaseRoom.removeChannel(ch) }
+  }, [])
 
   // clock
   useEffect(() => {
@@ -481,7 +508,7 @@ export default function PrivateRoom() {
             direction="up"
             state="idle"
             scale={0.75}
-            isWorking={false}
+            isWorking={busyAgents.has('Janie')}
             onClick={handleClickJanie}
           />
 
@@ -572,19 +599,26 @@ export default function PrivateRoom() {
 
       </div>
 
-      {/* ── Bottom hint ── */}
+      {/* ── Status bar ── */}
       <div style={{
-        marginTop: 14,
-        display: 'flex',
-        gap: 20,
-        alignItems: 'center',
+        marginTop: 14, display: 'flex', gap: 16, alignItems: 'center',
+        paddingBottom: 40,  // leave space for LiveFeed
       }}>
         <span style={{ fontSize: 10, color: '#334155' }}>
-          คลิก <span style={{ color: '#818cf8', fontWeight: 700 }}>Janie</span> เพื่อเปิด Command Center
+          คลิก <span style={{ color: '#818cf8', fontWeight: 700 }}>Janie</span> เพื่อสั่งงาน
         </span>
+        {busyAgents.size > 0 && (
+          <>
+            <span style={{ fontSize: 10, color: '#1e293b' }}>•</span>
+            <span style={{ fontSize: 10, color: '#f59e0b', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#f59e0b', animation: 'blink 1s ease-in-out infinite' }} />
+              {busyAgents.size} agent กำลังทำงาน: {Array.from(busyAgents).join(', ')}
+            </span>
+          </>
+        )}
         <span style={{ fontSize: 10, color: '#1e293b' }}>•</span>
         <span style={{ fontSize: 10, color: chatOpen ? '#818cf8' : '#334155' }}>
-          {chatOpen ? '💬 Chat เปิดอยู่' : '💬 คลิก Janie เพื่อสั่งงาน'}
+          {chatOpen ? '💬 Chat เปิดอยู่' : '💬 Chat'}
         </span>
       </div>
 
@@ -598,6 +632,15 @@ export default function PrivateRoom() {
         {usageOpen && <UsagePanel onClose={() => setUsageOpen(false)} />}
       </AnimatePresence>
 
+      {/* ── Live Feed (bottom ticker) ── */}
+      <LiveFeed />
+
+      {/* ── Task Toast (top-left notifications) ── */}
+      <TaskToast />
+
+      <style>{`
+        @keyframes blink { 0%,100% { opacity:1 } 50% { opacity:0.3 } }
+      `}</style>
     </div>
   )
 }
