@@ -133,20 +133,39 @@ async function generateResponse(
               summary: string; startTime: string; endTime: string
               description?: string; recurrence?: string; remindMinutes?: number
             }
+
+            // Validate required fields
+            if (!evt.summary || !evt.startTime || !evt.endTime) {
+              return { reply: `⚠️ Janie ไม่สามารถแปลงคำสั่งเป็นนัดได้ค่ะ กรุณาระบุให้ชัดเจน เช่น "นัดกินข้าว วันพรุ่งนี้ 10:00"`, searchUsed: false }
+            }
+
             const created = await fetch(`${appUrlCal}/api/calendar`, {
               method:  'POST',
               headers: { 'Content-Type': 'application/json' },
               body:    JSON.stringify(evt),
-            }).then(r => r.json())
+            }).then(r => r.json()).catch((e: unknown) => ({ ok: false, error: String(e) }))
 
             if (created.ok) {
               return {
                 reply: `✅ สร้างนัด "${evt.summary}" ใน Google Calendar แล้วค่ะ — sync มือถือได้เลย 📅${created.htmlLink ? `\n🔗 ${created.htmlLink}` : ''}`,
                 searchUsed: false,
               }
+            } else {
+              const errDetail = created.error ?? 'unknown error'
+              console.error('[Calendar task failed]', errDetail)
+              // 403 = Calendar API not enabled, 401 = token expired
+              if (String(errDetail).includes('403') || String(errDetail).includes('notFound')) {
+                return { reply: `⚠️ Google Calendar API ยังไม่ได้เปิดใช้งานค่ะ\n\n👉 ไปที่ **console.cloud.google.com** → APIs & Services → Library → ค้นหา "Google Calendar API" → **Enable**\n\nแล้วลองใหม่อีกครั้งค่ะ`, searchUsed: false }
+              }
+              return { reply: `⚠️ สร้างนัดไม่สำเร็จค่ะ (${errDetail})\nลองใหม่อีกครั้ง หรือแจ้งให้ทีมทราบค่ะ`, searchUsed: false }
             }
+          } else {
+            return { reply: `⚠️ ไม่สามารถแปลงคำสั่งเป็นนัดได้ค่ะ กรุณาระบุวัน เวลา ให้ชัดเจนกว่านี้`, searchUsed: false }
           }
-        } catch { /* fall through to normal reply */ }
+        } catch (calErr) {
+          console.error('[Calendar block error]', calErr)
+          return { reply: `⚠️ เกิดข้อผิดพลาดในการสร้างนัด กรุณาลองใหม่ค่ะ`, searchUsed: false }
+        }
       } else {
         return {
           reply: `📅 ยังไม่ได้เชื่อมต่อ Google Calendar ค่ะ\n\n👉 ไปที่ **b3-team-avenger.vercel.app/settings** → หัวข้อ **📅 Google Calendar** → กด **"+ Connect"** แล้ว login Google\n\nหลังจากนั้นพิมพ์คำสั่งนี้ใหม่อีกครั้ง — Janie จะสร้างนัดให้ทันทีค่ะ`,

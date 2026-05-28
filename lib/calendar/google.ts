@@ -51,8 +51,10 @@ export async function createCalendarEvent(event: CalendarEvent): Promise<{ id: s
   )
   const data = await res.json()
   if (!res.ok) {
-    console.error('[GCal create error]', data)
-    return null
+    const errMsg = data?.error?.message ?? data?.error?.status ?? JSON.stringify(data)
+    const errCode = data?.error?.code ?? res.status
+    console.error('[GCal create error]', errCode, errMsg, JSON.stringify(data).slice(0, 500))
+    return { error: `${errCode}: ${errMsg}` } as unknown as null
   }
   return { id: data.id, htmlLink: data.htmlLink }
 }
