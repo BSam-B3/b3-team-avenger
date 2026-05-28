@@ -731,12 +731,12 @@ function TopNav({ now, tasks }: { now: Date | null; tasks: AgentTask[] }) {
 
   const NAV = [
     { label: 'DASHBOARD', href: '/dashboard', active: true  },
-    { label: 'PROJECTS',  href: null,          active: false },
+    { label: 'PROJECTS',  href: '/projects',   active: true  },
     { label: 'AI AGENTS', href: '/dashboard',  active: true  },
     { label: 'ASSETS',    href: null,          active: false },
     { label: 'TEAM',      href: '/team',       active: true  },
     { label: 'ANALYTICS', href: '/analytics',  active: true  },
-    { label: 'SETTINGS',  href: null,          active: false },
+    { label: 'SETTINGS',  href: '/settings',   active: true  },
   ]
 
   return (

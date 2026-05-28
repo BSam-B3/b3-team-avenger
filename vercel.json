@@ -2,12 +2,23 @@
   "framework": "nextjs",
   "buildCommand": "next build",
   "devCommand": "next dev --port 3001",
-  "env": {
-    "NEXT_PUBLIC_APP_URL": "https://YOUR-APP.vercel.app"
-  },
   "functions": {
     "app/api/**/*.ts": {
       "maxDuration": 60
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/workers/midnight-hunter",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/workers/idle-check",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/workers/process-task",
+      "schedule": "*/5 * * * *"
+    }
+  ]
 }

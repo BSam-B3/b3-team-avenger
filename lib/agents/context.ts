@@ -13,6 +13,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { readFileSync } from 'fs'
 import { join } from 'path'
+import { searchKnowledge, formatKnowledgeContext } from '@/lib/knowledge/search'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -22,29 +23,37 @@ const supabase = createClient(
 
 /**
  * Load context for one agent.
- * Always DB-first. Falls back to .md file if DB has no entry.
+ * LEVEL 1: identity .md / DB (always loaded)
+ * LEVEL 3: RAG search from agent_knowledge (appended when available)
  */
-export async function loadAgentContext(agentId: string): Promise<string> {
-  // 1. Try Supabase
+export async function loadAgentContext(agentId: string, taskHint?: string): Promise<string> {
+  // LEVEL 1 — Try Supabase DB first
   const { data } = await supabase
     .from('agent_contexts')
     .select('context')
     .eq('agent_id', agentId)
     .single()
 
+  let level1 = ''
   if (data?.context && data.context.trim().length > 10) {
-    return data.context
+    level1 = data.context
+  } else {
+    // Fallback to .md file + seed DB async
+    level1 = loadFromFile(agentId)
+    if (level1.length > 20) {
+      void supabase.from('agent_contexts')
+        .upsert({ agent_id: agentId, context: level1, updated_by: 'file_seed' })
+    }
   }
 
-  // 2. Fallback to .md file + seed DB for next time
-  const fromFile = loadFromFile(agentId)
-  if (fromFile.length > 20) {
-    // Async seed — don't await, non-blocking
-    void supabase.from('agent_contexts')
-      .upsert({ agent_id: agentId, context: fromFile, updated_by: 'file_seed' })
+  // LEVEL 3 — RAG: search agent_knowledge for relevant chunks
+  if (taskHint) {
+    const chunks = await searchKnowledge(agentId, taskHint, 3)
+    const ragContext = formatKnowledgeContext(chunks)
+    if (ragContext) return level1 + ragContext
   }
 
-  return fromFile
+  return level1
 }
 
 /**

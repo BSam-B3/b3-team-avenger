@@ -71,8 +71,8 @@ async function generateResponse(
   }
 
   try {
-    // 1. Load agent context from Supabase (DB-first, file fallback)
-    const context = await loadAgentContext(agentId)
+    // 1. Load agent context — LEVEL 1 + LEVEL 3 RAG
+    const context = await loadAgentContext(agentId, taskDetail)
 
     // 2. Peer consultation for complex tasks
     const consultationNote = await getConsultation(agentId, taskDetail, 'deep')
@@ -232,6 +232,19 @@ export async function POST(req: NextRequest) {
         action_desc: `✓ task: "${(task.task_detail as string).slice(0, 60)}${(task.task_detail as string).length > 60 ? '...' : ''}"`,
         status:      'completed',
       }])
+
+      // Auto-generate reflection for complex tasks (non-blocking)
+      const appUrl2 = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3001'
+      void fetch(`${appUrl2}/api/reflection`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          agent_id:    task.assigned_to,
+          task_id:     task_id,
+          auto:        true,
+          task_detail: task.task_detail,
+        }),
+      }).catch(() => {})
 
       // Update conversation search_used flag
       if (searchUsed && task.conversation_id) {
