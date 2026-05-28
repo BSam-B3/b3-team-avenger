@@ -151,11 +151,18 @@ function ConnectPrompt({ tab, cfg }: { tab: Tab; cfg: typeof TAB_CONFIG[Tab] }) 
   )
 }
 
+interface EmailDraft {
+  id: string; to_addr: string; subject: string; body: string
+  provider: string; original_from?: string; created_at: string
+}
+
 export default function EmailPage() {
   const [activeTab, setActiveTab]   = useState<Tab>('m365')
   const [emails,    setEmails]      = useState<Record<Tab, EmailMessage[]>>({ gmail: [], m365: [], cit: [] })
   const [status,    setStatus]      = useState<EmailStatus>({ gmail: { connected: false }, m365: { connected: false }, cit: { connected: false } })
   const [loading,   setLoading]     = useState<Record<Tab, boolean>>({ gmail: false, m365: false, cit: false })
+  const [drafts,    setDrafts]      = useState<EmailDraft[]>([])
+  const [replying,  setReplying]    = useState<string | null>(null)  // email id being replied to
 
   // Handle success/error from OAuth redirects
   useEffect(() => {
@@ -200,6 +207,49 @@ export default function EmailPage() {
       loadEmails(activeTab)
     }
   }, [activeTab]) // eslint-disable-line
+
+  // Load pending drafts
+  const loadDrafts = useCallback(async () => {
+    try {
+      const res = await fetch('/api/email/reply').then(r => r.json())
+      setDrafts(res.drafts ?? [])
+    } catch { /* ignore */ }
+  }, [])
+
+  useEffect(() => { loadDrafts() }, [loadDrafts])
+
+  // Let Nam draft a reply to an email
+  const handleReply = async (email: EmailMessage) => {
+    setReplying(email.id)
+    try {
+      // Ask Janie to have Nam draft a reply
+      await fetch('/api/janie/chat', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: `Nam: ช่วยร่าง reply email นี้ให้หน่อย\nจาก: ${email.from}\nหัวข้อ: ${email.subject}\nเนื้อหา: ${email.snippet}\n\nร่าง reply ภาษาไทย สุภาพ กระชับ แล้วบันทึกลง /api/email/reply POST พร้อม provider: ${email.provider}, to_addr: (parse from), subject: ${email.subject}, original_from: ${email.from}`,
+        }),
+      })
+      setTimeout(loadDrafts, 8000)  // reload drafts after 8s
+    } catch { /* ignore */ } finally {
+      setReplying(null)
+    }
+  }
+
+  const sendDraft = async (id: string) => {
+    await fetch('/api/email/reply', {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, action: 'send' }),
+    })
+    loadDrafts()
+  }
+
+  const discardDraft = async (id: string) => {
+    await fetch('/api/email/reply', {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, action: 'discard' }),
+    })
+    loadDrafts()
+  }
 
   const cfg = TAB_CONFIG[activeTab]
   const isConnected = status[activeTab]?.connected
@@ -364,7 +414,7 @@ export default function EmailPage() {
               </div>
             ) : (
               tabEmails.map(email => (
-                <EmailCard key={email.id} email={email} />
+                <EmailCard key={email.id} email={email} onReply={handleReply} />
               ))
             )}
           </div>
@@ -386,6 +436,38 @@ export default function EmailPage() {
           )}
         </div>
       </div>
+
+      {/* ── Drafts awaiting approval ── */}
+      {drafts.length > 0 && (
+        <div style={{ maxWidth: 760, margin: '0 auto 40px', padding: '0 20px' }}>
+          <div style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 12, overflow: 'hidden' }}>
+            <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(245,158,11,0.15)', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#f59e0b' }}>✍️ Draft รออนุมัติ ({drafts.length})</span>
+              <span style={{ fontSize: 10, color: '#64748b' }}>Nam ร่างไว้ — ตรวจแล้วค่อยส่ง</span>
+            </div>
+            {drafts.map(d => (
+              <div key={d.id} style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#e2e8f0', marginBottom: 2 }}>ถึง: {d.to_addr}</div>
+                    <div style={{ fontSize: 10, color: '#64748b', marginBottom: 6 }}>Re: {d.subject}</div>
+                    <div style={{ fontSize: 11, color: '#94a3b8', whiteSpace: 'pre-wrap', lineHeight: 1.6, maxHeight: 80, overflow: 'hidden' }}>{d.body}</div>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flexShrink: 0 }}>
+                    <button onClick={() => sendDraft(d.id)} style={{ padding: '6px 14px', borderRadius: 6, background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.3)', color: '#4ade80', fontSize: 10, fontWeight: 700, cursor: 'pointer' }}>📤 ส่ง</button>
+                    <button onClick={() => discardDraft(d.id)} style={{ padding: '6px 14px', borderRadius: 6, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171', fontSize: 10, cursor: 'pointer' }}>🗑 ทิ้ง</button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      {replying && (
+        <div style={{ position: 'fixed', bottom: 20, right: 20, background: 'rgba(99,102,241,0.9)', borderRadius: 10, padding: '10px 16px', fontSize: 12, color: '#fff', boxShadow: '0 4px 20px rgba(0,0,0,0.4)' }}>
+          ✍️ Nam กำลังร่าง reply...
+        </div>
+      )}
     </div>
   )
 }
