@@ -23,7 +23,7 @@ export async function fetchGmailMessages(maxResults = 10): Promise<EmailMessage[
   try {
     // ดึงรายการ messages
     const listRes = await fetch(
-      `https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=${maxResults}&labelIds=INBOX&q=is:unread OR newer_than:2d`,
+      `https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=${maxResults}&labelIds=INBOX&q=is:important OR (is:unread newer_than:3d NOT category:promotions NOT category:social)`,
       { headers: { Authorization: `Bearer ${token}` } }
     )
     const listData = await listRes.json()

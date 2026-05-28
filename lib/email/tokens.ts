@@ -12,7 +12,7 @@ const supabase = createClient(
 )
 
 export interface OAuthToken {
-  provider:      'gmail' | 'm365'
+  provider:      'gmail' | 'm365' | 'cit'
   email:         string
   access_token:  string
   refresh_token: string
@@ -36,7 +36,7 @@ export async function saveToken(token: OAuthToken): Promise<void> {
 
 // ─── Get stored token ─────────────────────────────────────────────────────────
 
-export async function getToken(provider: 'gmail' | 'm365'): Promise<OAuthToken | null> {
+export async function getToken(provider: 'gmail' | 'm365' | 'cit'): Promise<OAuthToken | null> {
   const { data } = await supabase
     .from('oauth_tokens')
     .select('*')
@@ -47,7 +47,7 @@ export async function getToken(provider: 'gmail' | 'm365'): Promise<OAuthToken |
 
 // ─── Get valid access token (auto-refresh if expired) ────────────────────────
 
-export async function getValidAccessToken(provider: 'gmail' | 'm365'): Promise<string | null> {
+export async function getValidAccessToken(provider: 'gmail' | 'm365' | 'cit'): Promise<string | null> {
   const token = await getToken(provider)
   if (!token?.refresh_token) return null
 
@@ -61,7 +61,8 @@ export async function getValidAccessToken(provider: 'gmail' | 'm365'): Promise<s
   // Refresh the token
   try {
     if (provider === 'gmail') return await refreshGmailToken(token.refresh_token)
-    if (provider === 'm365')  return await refreshM365Token(token.refresh_token)
+    if (provider === 'm365')  return await refreshM365Token(token.refresh_token, 'm365')
+    if (provider === 'cit')   return await refreshM365Token(token.refresh_token, 'cit')
   } catch {
     return null
   }
@@ -96,7 +97,7 @@ async function refreshGmailToken(refresh_token: string): Promise<string | null> 
 
 // ─── Refresh M365 token ───────────────────────────────────────────────────────
 
-async function refreshM365Token(refresh_token: string): Promise<string | null> {
+async function refreshM365Token(refresh_token: string, provider: 'm365' | 'cit'): Promise<string | null> {
   const res = await fetch('https://login.microsoftonline.com/common/oauth2/v2.0/token', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -116,7 +117,7 @@ async function refreshM365Token(refresh_token: string): Promise<string | null> {
     access_token: data.access_token,
     expires_at:   expiresAt,
     updated_at:   new Date().toISOString(),
-  }).eq('provider', 'm365')
+  }).eq('provider', provider)
 
   return data.access_token
 }

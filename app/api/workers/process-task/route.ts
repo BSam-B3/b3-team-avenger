@@ -20,9 +20,9 @@ import { callAITracked, detectBackend } from '@/lib/ai/client'
 import { webSearch, shouldSearch } from '@/lib/ai/search'
 import { loadAgentContext } from '@/lib/agents/context'
 import { getConsultation } from '@/lib/agents/consult'
-import { getEmailContext } from '@/lib/email'
+import { getEmailContext, detectEmailScope } from '@/lib/email'
 
-const EMAIL_KEYWORDS    = ['email', 'อีเมล', 'mail', 'inbox', 'gmail', 'outlook', 'ส่งเมล', 'เมล', 'สรุปเมล', 'ตรวจเมล']
+const EMAIL_KEYWORDS     = ['email', 'อีเมล', 'mail', 'inbox', 'gmail', 'outlook', 'ส่งเมล', 'เมล', 'สรุปเมล', 'ตรวจเมล', 'pandv', 'cit']
 const EXPLOITER_KEYWORDS = ['เข้าถึง', 'remote', 'ssh', 'server', 'script', 'สแกน', 'scan', 'เครื่อง', 'network', 'ติดตั้ง', 'install', 'agent', 'shortcut', 'ทางลัด', 'exploit', 'automate', 'อัตโนมัติ', 'rdp', 'vpn']
 
 function needsEmail(taskDetail: string): boolean {
@@ -79,10 +79,11 @@ async function generateResponse(
     // 2. Peer consultation for complex tasks
     const consultationNote = await getConsultation(agentId, taskDetail, 'deep')
 
-    // 3. Fetch real emails if task involves email
+    // 3. Fetch real emails — smart scope: default=work (PANDV+CIT), explicit=gmail/cit/pandv
     let emailContext = ''
     if (needsEmail(taskDetail)) {
-      emailContext = await getEmailContext(8)
+      const scope = detectEmailScope(taskDetail)
+      emailContext = await getEmailContext(6, scope)
     }
 
     // 4. Optional web search when context is thin or task explicitly needs external info

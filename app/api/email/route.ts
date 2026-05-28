@@ -1,39 +1,38 @@
 /**
  * GET /api/email
- * ดึง emails ล่าสุดจากทุก provider ที่เชื่อมต่อแล้ว
+ * ดึง emails ตาม scope/provider
  *
  * Query params:
- *   provider = 'gmail' | 'm365' | 'all' (default: all)
+ *   provider = 'gmail' | 'm365' | 'cit' | 'work' | 'all' (default: all)
  *   limit    = number (default: 10)
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { fetchGmailMessages } from '@/lib/email/gmail'
-import { fetchM365Messages }  from '@/lib/email/m365'
-import { getEmailStatus }     from '@/lib/email'
+import { fetchEmailsByScope, getEmailStatus } from '@/lib/email'
+import type { EmailScope } from '@/lib/email'
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
-  const provider = searchParams.get('provider') ?? 'all'
+  const provider = (searchParams.get('provider') ?? 'all') as EmailScope | 'gmail' | 'm365' | 'cit'
   const limit    = Math.min(20, parseInt(searchParams.get('limit') ?? '10', 10))
 
+  // map provider param to EmailScope
+  const scopeMap: Record<string, EmailScope> = {
+    gmail: 'personal',
+    m365:  'pandv',
+    cit:   'cit',
+    work:  'work',
+    all:   'all',
+  }
+  const scope: EmailScope = scopeMap[provider] ?? 'all'
+
   const status = await getEmailStatus()
-
-  const [gmailMsgs, m365Msgs] = await Promise.allSettled([
-    (provider === 'all' || provider === 'gmail') && status.gmail.connected
-      ? fetchGmailMessages(limit) : Promise.resolve([]),
-    (provider === 'all' || provider === 'm365') && status.m365.connected
-      ? fetchM365Messages(limit)  : Promise.resolve([]),
-  ])
-
-  const emails = [
-    ...(gmailMsgs.status === 'fulfilled' ? gmailMsgs.value : []),
-    ...(m365Msgs.status  === 'fulfilled' ? m365Msgs.value  : []),
-  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+  const emails = await fetchEmailsByScope(scope, limit)
 
   return NextResponse.json({
     ok:      true,
     status,
+    scope,
     count:   emails.length,
     emails,
   })
