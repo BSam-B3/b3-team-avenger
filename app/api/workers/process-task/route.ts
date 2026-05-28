@@ -174,6 +174,18 @@ async function generateResponse(
       }
     }
 
+    // Nam: auto-create ticket when task has ticket keywords
+    const TICKET_KEYWORDS = ['ticket', 'ปัญหา', 'เปิด ticket', 'แจ้งปัญหา', 'ซ่อม', 'ลูกค้าแจ้ง', 'เครื่องเสีย', 'คอมพิวเตอร์เสีย']
+    if (agentId === 'Nam' && TICKET_KEYWORDS.some(kw => taskDetail.toLowerCase().includes(kw))) {
+      try {
+        const appUrlT = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3001'
+        await fetch(`${appUrlT}/api/tickets`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: taskDetail.slice(0, 100), description: taskDetail, source: 'janie' }),
+        })
+      } catch { /* non-critical */ }
+    }
+
     // Exploiter: generate approval request instead of direct response
     if (agentId === 'Exploiter' && isExploiterTask(taskDetail)) {
       const exploiterPrompt = `${context}
