@@ -51,7 +51,7 @@ const TAB_CONFIG: Record<Tab, {
   },
 }
 
-function EmailCard({ email }: { email: EmailMessage }) {
+function EmailCard({ email, onReply }: { email: EmailMessage; onReply: (e: EmailMessage) => void }) {
   const cfg = TAB_CONFIG[email.provider] ?? TAB_CONFIG.gmail
   const dateStr = (() => {
     try {
@@ -105,6 +105,19 @@ function EmailCard({ email }: { email: EmailMessage }) {
             WebkitBoxOrient: 'vertical', overflow: 'hidden',
           }}>
             {email.snippet}
+          </div>
+
+          {/* Reply button */}
+          <div style={{ marginTop: 8 }}>
+            <button
+              onClick={e => { e.stopPropagation(); onReply(email) }}
+              style={{
+                padding: '4px 12px', borderRadius: 6, fontSize: 10, fontWeight: 600, cursor: 'pointer',
+                background: `${cfg.color}15`, border: `1px solid ${cfg.color}40`, color: cfg.color,
+              }}
+            >
+              ↩ ให้ Nam ร่างตอบ
+            </button>
           </div>
         </div>
       </div>

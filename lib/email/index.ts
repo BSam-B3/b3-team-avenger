@@ -13,7 +13,7 @@
 
 import { fetchGmailMessages } from './gmail'
 import { fetchM365Messages }  from './m365'
-import { fetchCITMessages }   from './cit'
+import { fetchCITMessages, isCITConfigured } from './cit'
 import { getToken }           from './tokens'
 
 export type { EmailMessage } from './gmail'
@@ -63,7 +63,8 @@ export async function getEmailStatus(): Promise<{
   return {
     gmail: { connected: !!gmailToken?.refresh_token, email: gmailToken?.email },
     m365:  { connected: !!m365Token?.refresh_token,  email: m365Token?.email  },
-    cit:   { connected: !!citToken?.refresh_token,   email: citToken?.email   },
+    // CIT uses IMAP (env vars), not OAuth
+    cit:   { connected: isCITConfigured(), email: process.env.CIT_EMAIL },
   }
 }
 

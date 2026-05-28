@@ -48,15 +48,15 @@ const BACKENDS = [
 const EMAIL_ACCOUNTS = [
   {
     key: 'gmail', label: 'Gmail', desc: 'ส่วนตัว — ธนาคาร โปรโมชั่น',
-    icon: '📧', color: '#ea4335', authPath: '/api/auth/gmail',
+    icon: '📧', color: '#ea4335', authPath: '/api/auth/gmail', isOAuth: true,
   },
   {
     key: 'm365', label: 'PANDV (Microsoft 365)', desc: 'บริษัท P AND V HAPPYNESS',
-    icon: '🏢', color: '#0078d4', authPath: '/api/auth/m365',
+    icon: '🏢', color: '#0078d4', authPath: '/api/auth/m365', isOAuth: true,
   },
   {
-    key: 'cit', label: 'CIT (C.I.T. Computer)', desc: 'ที่ทำงาน C.I.T.',
-    icon: '💼', color: '#6366f1', authPath: '/api/auth/cit',
+    key: 'cit', label: 'CIT (C.I.T. Computer)', desc: 'surapong@citcomputer.co.th — IMAP',
+    icon: '💼', color: '#6366f1', authPath: '', isOAuth: false,
   },
 ]
 
@@ -142,14 +142,28 @@ export default function SettingsPage() {
           <Card title="📧 Email Accounts" subtitle="เชื่อมต่อเพื่อให้ Janie อ่านและจัดการ email ได้">
             {EMAIL_ACCOUNTS.map(acc => {
               const conn = connections?.[acc.key as keyof Connections]
-              return (
+              // CIT uses IMAP (env vars) — always show as connected if email is configured
+              const isCITImap = acc.key === 'cit' && !acc.isOAuth
+              const isConnected = isCITImap ? !!conn?.connected : (conn?.connected ?? false)
+              return isCITImap ? (
+                <div key={acc.key} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                  <div style={{ width: 36, height: 36, borderRadius: 10, background: `${acc.color}18`, border: `1px solid ${acc.color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>{acc.icon}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: isConnected ? '#e2e8f0' : '#64748b' }}>{acc.label}</div>
+                    <div style={{ fontSize: 10, color: '#475569' }}>{acc.desc}</div>
+                  </div>
+                  <span style={{ fontSize: 10, fontWeight: 700, padding: '4px 10px', borderRadius: 7, background: isConnected ? 'rgba(34,197,94,0.1)' : 'rgba(100,116,139,0.1)', border: `1px solid ${isConnected ? 'rgba(34,197,94,0.3)' : 'rgba(100,116,139,0.2)'}`, color: isConnected ? '#4ade80' : '#64748b' }}>
+                    {isConnected ? '✓ Connected (IMAP)' : '✗ Not configured'}
+                  </span>
+                </div>
+              ) : (
                 <ConnectRow
                   key={acc.key}
                   icon={acc.icon}
                   label={acc.label}
                   desc={conn?.connected && conn.email ? conn.email : acc.desc}
                   color={acc.color}
-                  connected={conn?.connected ?? false}
+                  connected={isConnected}
                   authPath={acc.authPath}
                 />
               )
