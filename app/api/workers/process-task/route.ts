@@ -150,17 +150,30 @@ Task จาก Janie: "${taskDetail}"
 - ให้ insight / คำแนะนำที่เป็นประโยชน์จริงจากความเชี่ยวชาญของคุณ
 - ถ้า task ต้องการข้อมูลเพิ่ม (ตัวเลขจริง, ไฟล์จริง, email จริง) ให้ถามตรงๆ ว่าต้องการอะไร
 - ถ้าทำได้เลย ให้ทำและแสดงผลทันที เช่น ทำตาราง, วิเคราะห์, แนะนำ
+- ถ้าเรียนรู้อะไรใหม่เกี่ยวกับ B3/เจ้านาย จากการทำ task นี้ ให้ต่อท้ายด้วย [LEARN: สิ่งที่เรียนรู้]
 ห้าม: แต่งตัวเลขเวลา (2 ชั่วโมง, 3 วัน), สัญญา deliverable ที่ไม่มีข้อมูลจริง, พูดซ้ำๆ ว่า "รับทราบแล้วจะดำเนินการ"`
 
-    const reply = await callAITracked(
+    const rawReply = await callAITracked(
       {
         system:      systemPrompt,
         userMessage: `Task ที่ได้รับ: ${taskDetail}`,
-        maxTokens:   400,
+        maxTokens:   450,
       },
       agentId,
       taskId,
     )
+
+    // Extract [LEARN: ...] tag and save to B3 memory (non-blocking)
+    const learnMatch = rawReply.match(/\[LEARN:\s*(.+?)\]/s)
+    const reply = rawReply.replace(/\[LEARN:[^\]]*\]/g, '').trim()
+    if (learnMatch?.[1]) {
+      const appUrl3 = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3001'
+      void fetch(`${appUrl3}/api/b3/memory`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ memory: learnMatch[1].trim(), source: agentId }),
+      }).catch(() => {})
+    }
 
     return { reply, searchUsed }
   } catch {

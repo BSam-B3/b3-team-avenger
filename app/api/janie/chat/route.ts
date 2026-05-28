@@ -105,6 +105,7 @@ function janieRuleBased(msg: string): OrchestrateResult {
     [['exploit', 'shortcut', 'ทางลัด', 'remote', 'ssh', 'rdp', 'สแกน network', 'เข้าถึงเครื่อง', 'ฝัง agent', 'automate', 'อัตโนมัติ'], 'Exploiter'],
     [['ค่าใช้จ่าย', 'บิล', 'bill', 'ค่าไฟ', 'ค่าน้ำ', 'subscription', 'payment', 'ชำระ', 'api cost', 'vercel cost', 'finley'], 'Finley'],
     [['knowledge base', 'vector', 'index', 'condense', 'ข้อมูลซ้ำ', 'chief', 'data architect'], 'Chief'],
+    [['นัด', 'ตาราง', 'calendar', 'schedule', 'appointment', 'นัดหมาย', 'on-site', 'ออนไซท์', 'remind', 'แจ้งเตือน', 'กำหนดการ'], 'Janie'],
   ]
 
   for (const [keywords, agent] of KEYWORDS) {

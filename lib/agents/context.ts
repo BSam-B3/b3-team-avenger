@@ -21,12 +21,28 @@ const supabase = createClient(
   { auth: { persistSession: false } }
 )
 
+// B3 Profile — โหลดครั้งเดียว ใช้ร่วมกันทุก agent
+let _b3Profile: string | null = null
+function loadB3Profile(): string {
+  if (_b3Profile !== null) return _b3Profile
+  try {
+    _b3Profile = readFileSync(join(process.cwd(), 'agent-contexts', 'B3-Profile.md'), 'utf-8')
+  } catch {
+    _b3Profile = 'เจ้านายชื่อ B3 (สุรพงษ์) — IT Support ที่ C.I.T. Computer'
+  }
+  return _b3Profile
+}
+
 /**
  * Load context for one agent.
+ * LEVEL 0: B3 Profile (shared, always prepended — agents รู้จักเจ้านาย)
  * LEVEL 1: identity .md / DB (always loaded)
  * LEVEL 3: RAG search from agent_knowledge (appended when available)
  */
 export async function loadAgentContext(agentId: string, taskHint?: string): Promise<string> {
+  // LEVEL 0 — B3 Profile (เจ้านาย) — ทุก agent รู้จัก B3
+  const b3Profile = loadB3Profile()
+
   // LEVEL 1 — Try Supabase DB first
   const { data } = await supabase
     .from('agent_contexts')
@@ -46,14 +62,16 @@ export async function loadAgentContext(agentId: string, taskHint?: string): Prom
     }
   }
 
+  const combined = `${b3Profile}\n\n---\n\n${level1}`
+
   // LEVEL 3 — RAG: search agent_knowledge for relevant chunks
   if (taskHint) {
     const chunks = await searchKnowledge(agentId, taskHint, 3)
     const ragContext = formatKnowledgeContext(chunks)
-    if (ragContext) return level1 + ragContext
+    if (ragContext) return combined + ragContext
   }
 
-  return level1
+  return combined
 }
 
 /**
