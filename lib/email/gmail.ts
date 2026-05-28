@@ -7,7 +7,7 @@ import { getValidAccessToken } from './tokens'
 
 export interface EmailMessage {
   id:       string
-  provider: 'gmail' | 'm365'
+  provider: 'gmail' | 'm365' | 'cit'
   from:     string
   subject:  string
   date:     string
