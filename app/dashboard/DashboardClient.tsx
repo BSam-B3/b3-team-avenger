@@ -42,7 +42,9 @@ const AGENTS = [
   { id: 'Kom',    th: 'คุณคมน์',   role: 'Risk Officer' },
   { id: 'Raps',   th: 'แรปส์',    role: 'HR & Knowledge' },
   { id: 'Ferin',    th: 'คุณเฟริน',   role: 'Chief Procurement' },
-  { id: 'Exploiter', th: 'Exploiter', role: 'IT Shortcut Agent' },
+  { id: 'Exploiter', th: 'Exploiter',  role: 'IT Shortcut Agent'  },
+  { id: 'Chief',     th: 'Chief',      role: 'Data Architect'     },
+  { id: 'Finley',    th: 'คุณฟินลีย์', role: 'Financial Liaison'  },
 ]
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -733,7 +735,7 @@ function TopNav({ now, tasks }: { now: Date | null; tasks: AgentTask[] }) {
     { label: 'DASHBOARD', href: '/dashboard', active: true  },
     { label: 'PROJECTS',  href: '/projects',   active: true  },
     { label: 'AI AGENTS', href: '/dashboard',  active: true  },
-    { label: 'ASSETS',    href: null,          active: false },
+    { label: 'ASSETS',    href: '/assets',     active: true  },
     { label: 'TEAM',      href: '/team',       active: true  },
     { label: 'ANALYTICS', href: '/analytics',  active: true  },
     { label: 'SETTINGS',  href: '/settings',   active: true  },

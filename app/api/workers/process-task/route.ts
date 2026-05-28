@@ -58,6 +58,8 @@ const FALLBACK: Record<string, string> = {
   Raps:   'รับค่ะ จะดูแลให้กระบวนการ smooth และ document ไว้ใน knowledge base ค่ะ',
   Ferin:    'รับทราบค่ะ จะเปรียบราคาผู้ขายและทำ comparison table ให้ดูค่ะ',
   Exploiter: '⚠️ รับ task แล้วครับ กำลังวิเคราะห์และสร้าง Approval Request รอยืนยันจากคุณบีสามก่อนดำเนินการ',
+  Chief:     'รับทราบครับ กำลังตรวจสอบโครงสร้างข้อมูลและจัดการ Knowledge Base',
+  Finley:    'รับทราบค่ะ กำลังตรวจสอบข้อมูลค่าใช้จ่ายและจะรายงานให้ทราบค่ะ',
 }
 
 async function generateResponse(

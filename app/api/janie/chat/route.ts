@@ -103,6 +103,8 @@ function janieRuleBased(msg: string): OrchestrateResult {
     [['procurement', 'vendor', 'จัดซื้อ', 'ราคา', 'เปรียบราคา', 'ผู้ขาย', 'supplier', 'po', 'price'], 'Ferin'],
     [['email', 'อีเมล', 'mail', 'inbox', 'gmail', 'ส่งเมล', 'เมล'], 'Nam'],
     [['exploit', 'shortcut', 'ทางลัด', 'remote', 'ssh', 'rdp', 'สแกน network', 'เข้าถึงเครื่อง', 'ฝัง agent', 'automate', 'อัตโนมัติ'], 'Exploiter'],
+    [['ค่าใช้จ่าย', 'บิล', 'bill', 'ค่าไฟ', 'ค่าน้ำ', 'subscription', 'payment', 'ชำระ', 'api cost', 'vercel cost', 'finley'], 'Finley'],
+    [['knowledge base', 'vector', 'index', 'condense', 'ข้อมูลซ้ำ', 'chief', 'data architect'], 'Chief'],
   ]
 
   for (const [keywords, agent] of KEYWORDS) {

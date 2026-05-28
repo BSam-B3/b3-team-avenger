@@ -13,6 +13,10 @@
       "schedule": "0 0 * * *"
     },
     {
+      "path": "/api/workers/weekly-condense",
+      "schedule": "0 2 * * 0"
+    },
+    {
       "path": "/api/workers/idle-check",
       "schedule": "0 * * * *"
     },
