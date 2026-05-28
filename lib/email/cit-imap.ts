@@ -55,9 +55,11 @@ export async function fetchCITEmails(limit = 15): Promise<CITEmail[]> {
 
     for await (const msg of msgs) {
       const from = msg.envelope?.from?.[0]
+      const fromAddr = from?.address ?? ''
+      const fromName = from?.name ?? ''
       emails.push({
         id:      msg.uid.toString(),
-        from:    from ? (from.name ? `${from.name} <${from.mailbox}@${from.host}>` : `${from.mailbox}@${from.host}`) : '',
+        from:    fromName ? `${fromName} <${fromAddr}>` : fromAddr,
         subject: msg.envelope?.subject ?? '(ไม่มีหัวข้อ)',
         date:    msg.envelope?.date?.toISOString() ?? new Date().toISOString(),
         snippet: '',
