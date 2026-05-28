@@ -725,10 +725,19 @@ function ApprovalBanner({ approvals, onResolve }: {
 // ─── Top Nav ──────────────────────────────────────────────────────────────────
 
 function TopNav({ now, tasks }: { now: Date | null; tasks: AgentTask[] }) {
-  const navItems = ['DASHBOARD','PROJECTS','AI AGENTS','ASSETS','TEAM','ANALYTICS','SETTINGS']
   const done = tasks.filter(t => t.status === 'done').length
   const total = tasks.length || 1
   const pct = Math.round((done / total) * 100)
+
+  const NAV = [
+    { label: 'DASHBOARD', href: '/dashboard', active: true  },
+    { label: 'PROJECTS',  href: null,          active: false },
+    { label: 'AI AGENTS', href: '/dashboard',  active: true  },
+    { label: 'ASSETS',    href: null,          active: false },
+    { label: 'TEAM',      href: '/team',       active: true  },
+    { label: 'ANALYTICS', href: '/analytics',  active: true  },
+    { label: 'SETTINGS',  href: null,          active: false },
+  ]
 
   return (
     <div style={{
@@ -751,18 +760,26 @@ function TopNav({ now, tasks }: { now: Date | null; tasks: AgentTask[] }) {
       </div>
 
       {/* Nav tabs */}
-      {navItems.map((item, i) => (
-        <div key={item} style={{
-          padding:'0 14px', height:'100%',
-          display:'flex', alignItems:'center',
-          fontSize:10, fontWeight:700, letterSpacing:0.5,
-          color: i === 2 ? '#f0f6fc' : '#4b5563',
-          background: i === 2 ? '#0d1117' : 'transparent',
-          borderBottom: i === 2 ? '2px solid #60a5fa' : '2px solid transparent',
-          cursor: i === 2 ? 'default' : 'not-allowed',
-          opacity: i === 2 ? 1 : 0.5,
-          transition:'all 0.15s',
-        }}>{item}</div>
+      {NAV.map(item => (
+        item.href ? (
+          <Link key={item.label} href={item.href} style={{
+            padding:'0 14px', height:'100%',
+            display:'flex', alignItems:'center',
+            fontSize:10, fontWeight:700, letterSpacing:0.5,
+            color: item.label === 'DASHBOARD' ? '#f0f6fc' : '#8b949e',
+            background: item.label === 'DASHBOARD' ? '#0d1117' : 'transparent',
+            borderBottom: item.label === 'DASHBOARD' ? '2px solid #60a5fa' : '2px solid transparent',
+            textDecoration: 'none', transition:'all 0.15s',
+          }}>{item.label}</Link>
+        ) : (
+          <div key={item.label} style={{
+            padding:'0 14px', height:'100%',
+            display:'flex', alignItems:'center',
+            fontSize:10, fontWeight:700, letterSpacing:0.5,
+            color:'#4b5563', opacity:0.4, cursor:'not-allowed',
+            borderBottom:'2px solid transparent',
+          }}>{item.label}</div>
+        )
       ))}
 
       {/* Right side */}
