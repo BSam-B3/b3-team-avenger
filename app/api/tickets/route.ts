@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { sendTelegram } from '@/lib/notify/telegram'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -68,6 +69,33 @@ export async function POST(req: NextRequest) {
     action_desc: `🎫 ticket opened: "${body.title.slice(0, 60)}"`,
     status:      'completed',
   })
+
+  // Telegram alert for new tickets (especially from customer /support form)
+  const source = body.source ?? 'manual'
+  const priorityEmoji: Record<string, string> = { urgent: '🔥', high: '⚡', normal: '📋', low: '🔵' }
+  const pEmoji = priorityEmoji[body.priority ?? 'normal'] ?? '📋'
+  const fromLabel = source === 'customer' ? '👤 ลูกค้าส่งมาจาก /support' : source === 'janie' ? '🤖 Janie สร้างให้' : '✍️ สร้างด้วยมือ'
+
+  void sendTelegram(
+    `🎫 <b>Ticket ใหม่</b>\n` +
+    `${pEmoji} ${body.title}\n` +
+    (body.customer_name ? `👤 ${body.customer_name}\n` : '') +
+    `📂 ${body.category ?? 'general'} | ${fromLabel}\n` +
+    `🔗 https://b3-team-avenger.vercel.app/tickets`
+  )
+
+  // Auto-link to existing customer by name
+  if (body.customer_name && !body.customer_id) {
+    const { data: found } = await supabase
+      .from('customers')
+      .select('id')
+      .ilike('name', `%${body.customer_name}%`)
+      .limit(1)
+      .single()
+    if (found) {
+      await supabase.from('support_tickets').update({ customer_id: found.id }).eq('id', data.id)
+    }
+  }
 
   return NextResponse.json({ ok: true, id: data.id })
 }

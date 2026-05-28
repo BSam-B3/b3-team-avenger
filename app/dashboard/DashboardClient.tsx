@@ -726,7 +726,7 @@ function ApprovalBanner({ approvals, onResolve }: {
 
 // ─── Top Nav ──────────────────────────────────────────────────────────────────
 
-function TopNav({ now, tasks }: { now: Date | null; tasks: AgentTask[] }) {
+function TopNav({ now, tasks, unreadEmails = 0 }: { now: Date | null; tasks: AgentTask[]; unreadEmails?: number }) {
   const done = tasks.filter(t => t.status === 'done').length
   const total = tasks.length || 1
   const pct = Math.round((done / total) * 100)
@@ -812,6 +812,22 @@ function TopNav({ now, tasks }: { now: Date | null; tasks: AgentTask[] }) {
         }}>
           📋 HISTORY
         </Link>
+        <Link href="/email" style={{
+          padding:'3px 8px', borderRadius:5, fontSize:9, fontWeight:700, position:'relative',
+          background: unreadEmails > 0 ? 'rgba(239,68,68,0.12)' : 'rgba(156,163,175,0.12)',
+          border: unreadEmails > 0 ? '1px solid rgba(239,68,68,0.25)' : '1px solid rgba(156,163,175,0.25)',
+          color: unreadEmails > 0 ? '#ef4444' : '#9ca3af', textDecoration:'none', letterSpacing:0.5,
+        }}>
+          ✉️ EMAIL
+          {unreadEmails > 0 && (
+            <span style={{
+              position:'absolute', top:-8, right:-8,
+              background:'#ef4444', color:'#fff', fontSize:8, fontWeight:900,
+              width:18, height:18, borderRadius:'50%',
+              display:'flex', alignItems:'center', justifyContent:'center'
+            }}>{unreadEmails}</span>
+          )}
+        </Link>
 
         {/* clock */}
         <div style={{ fontSize:10, fontFamily:'monospace', color:'#4b5563' }}>
@@ -836,6 +852,7 @@ export default function DashboardClient({
   const [sel,       setSel]       = useState<string | null>(null)
   const [speeches,  setSpeeches]  = useState<Record<string, string>>({})
   const [approvals, setApprovals] = useState<AgentApproval[]>([])
+  const [unreadEmails, setUnreadEmails] = useState(0)
   const timers = useRef<Record<string, ReturnType<typeof setTimeout>>>({})
   const supabase = createClient()
 
@@ -852,6 +869,21 @@ export default function DashboardClient({
       .then(r => r.json())
       .then(d => { if (d.approvals) setApprovals(d.approvals as AgentApproval[]) })
       .catch(() => {/* silent */})
+  }, [])
+
+  // fetch unread emails on mount
+  useEffect(() => {
+    fetch('/api/email/unread-count')
+      .then(r => r.json())
+      .then(d => { if (d.unreadCount !== undefined) setUnreadEmails(d.unreadCount) })
+      .catch(() => {/* silent */})
+    const interval = setInterval(() => {
+      fetch('/api/email/unread-count')
+        .then(r => r.json())
+        .then(d => { if (d.unreadCount !== undefined) setUnreadEmails(d.unreadCount) })
+        .catch(() => {/* silent */})
+    }, 60000)
+    return () => clearInterval(interval)
   }, [])
 
   // realtime: approvals
@@ -929,7 +961,7 @@ export default function DashboardClient({
       height:'100dvh', background:'#0d1117', overflow:'hidden',
     }}>
       {/* Top Nav */}
-      <TopNav now={now} tasks={tasks} />
+      <TopNav now={now} tasks={tasks} unreadEmails={unreadEmails} />
 
       {/* Agent done toast notifications */}
       <Notifications />
