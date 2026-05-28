@@ -22,6 +22,7 @@ import { loadAgentContext } from '@/lib/agents/context'
 import { getConsultation } from '@/lib/agents/consult'
 import { getEmailContext, detectEmailScope } from '@/lib/email'
 import { detectCustomerInfo, proposeCustomerUpdates } from '@/lib/customers/learn'
+import { sendTelegram } from '@/lib/notify/telegram'
 
 const EMAIL_KEYWORDS     = ['email', 'อีเมล', 'mail', 'inbox', 'gmail', 'outlook', 'ส่งเมล', 'เมล', 'สรุปเมล', 'ตรวจเมล', 'pandv', 'cit']
 const EXPLOITER_KEYWORDS = ['เข้าถึง', 'remote', 'ssh', 'server', 'script', 'สแกน', 'scan', 'เครื่อง', 'network', 'ติดตั้ง', 'install', 'agent', 'shortcut', 'ทางลัด', 'exploit', 'automate', 'อัตโนมัติ', 'rdp', 'vpn']
@@ -146,8 +147,11 @@ async function generateResponse(
             }).then(r => r.json()).catch((e: unknown) => ({ ok: false, error: String(e) }))
 
             if (created.ok) {
+              // Send Telegram reminder
+              const startFormatted = new Date(evt.startTime).toLocaleString('th-TH', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+              void sendTelegram(`📅 <b>Janie สร้างนัดแล้ว</b>\n<b>${evt.summary}</b>\n🕐 ${startFormatted}\n${created.htmlLink ? `🔗 ${created.htmlLink}` : ''}`)
               return {
-                reply: `✅ สร้างนัด "${evt.summary}" ใน Google Calendar แล้วค่ะ — sync มือถือได้เลย 📅${created.htmlLink ? `\n🔗 ${created.htmlLink}` : ''}`,
+                reply: `✅ สร้างนัด "${evt.summary}" ใน Google Calendar แล้วค่ะ — sync มือถือได้เลย 📅\n🕐 ${startFormatted}${created.htmlLink ? `\n🔗 ${created.htmlLink}` : ''}`,
                 searchUsed: false,
               }
             } else {

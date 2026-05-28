@@ -216,6 +216,24 @@ export default function SettingsPage() {
             </div>
           </Card>
 
+          {/* ── SUPPORT LINK ── */}
+          <Card title="🎫 Customer Support Link" subtitle="ลิงก์ให้ลูกค้าส่ง ticket โดยตรง — ไม่ต้อง login">
+            <div style={{ padding: '12px 0' }}>
+              <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8 }}>ส่งลิงก์นี้ให้ลูกค้าเปิดแบบฟอร์มแจ้งปัญหา:</div>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <code style={{ flex: 1, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 7, padding: '8px 12px', fontSize: 12, color: '#818cf8', wordBreak: 'break-all' }}>
+                  https://b3-team-avenger.vercel.app/support
+                </code>
+                <a href="/support" target="_blank" style={{ padding: '8px 14px', borderRadius: 7, background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)', color: '#818cf8', fontSize: 11, fontWeight: 600, textDecoration: 'none', flexShrink: 0 }}>
+                  เปิดดู →
+                </a>
+              </div>
+              <div style={{ marginTop: 8, fontSize: 10, color: '#334155' }}>
+                ลูกค้ากรอกชื่อ บริษัท เบอร์โทร ประเภทปัญหา → ticket เข้าระบบอัตโนมัติที่ /tickets
+              </div>
+            </div>
+          </Card>
+
           {/* ── AGENT BEHAVIOR ── */}
           <Card title="⚡ Agent Behavior">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
