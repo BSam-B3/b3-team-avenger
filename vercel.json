@@ -17,6 +17,10 @@
       "schedule": "0 1 * * *"
     },
     {
+      "path": "/api/workers/email-secretary",
+      "schedule": "0 2 * * *"
+    },
+    {
       "path": "/api/workers/weekly-condense",
       "schedule": "0 2 * * 0"
     }
