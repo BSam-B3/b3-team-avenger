@@ -22,11 +22,17 @@ import { loadAgentContext } from '@/lib/agents/context'
 import { getConsultation } from '@/lib/agents/consult'
 import { getEmailContext } from '@/lib/email'
 
-const EMAIL_KEYWORDS = ['email', 'อีเมล', 'mail', 'inbox', 'gmail', 'outlook', 'ส่งเมล', 'เมล', 'สรุปเมล', 'ตรวจเมล']
+const EMAIL_KEYWORDS    = ['email', 'อีเมล', 'mail', 'inbox', 'gmail', 'outlook', 'ส่งเมล', 'เมล', 'สรุปเมล', 'ตรวจเมล']
+const EXPLOITER_KEYWORDS = ['เข้าถึง', 'remote', 'ssh', 'server', 'script', 'สแกน', 'scan', 'เครื่อง', 'network', 'ติดตั้ง', 'install', 'agent', 'shortcut', 'ทางลัด', 'exploit', 'automate', 'อัตโนมัติ', 'rdp', 'vpn']
 
 function needsEmail(taskDetail: string): boolean {
   const lower = taskDetail.toLowerCase()
   return EMAIL_KEYWORDS.some(kw => lower.includes(kw))
+}
+
+function isExploiterTask(taskDetail: string): boolean {
+  const lower = taskDetail.toLowerCase()
+  return EXPLOITER_KEYWORDS.some(kw => lower.includes(kw))
 }
 
 const supabase = createClient(
@@ -50,7 +56,8 @@ const FALLBACK: Record<string, string> = {
   Nam:    'รับเรื่องแล้วค่ะ จะดูแลและ follow up จนเสร็จค่ะ',
   Kom:    'รับทราบครับ จะทำ risk assessment และเสนอ mitigation plan ครับ',
   Raps:   'รับค่ะ จะดูแลให้กระบวนการ smooth และ document ไว้ใน knowledge base ค่ะ',
-  Ferin:  'รับทราบค่ะ จะเปรียบราคาผู้ขายและทำ comparison table ให้ดูค่ะ',
+  Ferin:    'รับทราบค่ะ จะเปรียบราคาผู้ขายและทำ comparison table ให้ดูค่ะ',
+  Exploiter: '⚠️ รับ task แล้วครับ กำลังวิเคราะห์และสร้าง Approval Request รอยืนยันจากคุณบีสามก่อนดำเนินการ',
 }
 
 async function generateResponse(
@@ -86,6 +93,50 @@ async function generateResponse(
         searchContext = `\n\n## ข้อมูลจากการค้นหา Web:\n${results}`
         searchUsed = true
       }
+    }
+
+    // Exploiter: generate approval request instead of direct response
+    if (agentId === 'Exploiter' && isExploiterTask(taskDetail)) {
+      const exploiterPrompt = `${context}
+
+Task: "${taskDetail}"
+
+วิเคราะห์ task นี้และสร้าง Approval Request ในรูปแบบ JSON เท่านั้น (ไม่มีข้อความอื่น):
+{
+  "action_type": "ประเภทงาน เช่น remote_access / script_run / system_scan",
+  "action_detail": "อธิบายละเอียดว่าจะทำอะไร บนระบบไหน",
+  "risk_level": "low หรือ medium หรือ high หรือ critical",
+  "nam_summary": "สรุปภาษาไทยสั้นๆ สำหรับคุณบีสามอ่าน — Exploiter ต้องการทำอะไร เพราะอะไร ได้ประโยชน์อะไร",
+  "agent_reply": "ข้อความตอบกลับสั้นๆ ในฐานะ Exploiter ว่ากำลังรอ Approve อยู่"
+}`
+
+      const raw = await callAITracked(
+        { system: exploiterPrompt, userMessage: taskDetail, maxTokens: 300 },
+        agentId, taskId,
+      )
+
+      try {
+        const jsonMatch = raw.match(/\{[\s\S]*\}/)
+        if (jsonMatch) {
+          const parsed = JSON.parse(jsonMatch[0]) as {
+            action_type: string; action_detail: string
+            risk_level: string; nam_summary: string; agent_reply: string
+          }
+          const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3001'
+          await fetch(`${appUrl}/api/approvals`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action_type:   parsed.action_type,
+              action_detail: parsed.action_detail,
+              risk_level:    parsed.risk_level,
+              nam_summary:   parsed.nam_summary,
+              task_id:       taskId,
+            }),
+          })
+          return { reply: parsed.agent_reply || `⏳ กำลังรอ Approve จากคุณบีสามก่อนดำเนินการ task นี้ครับ`, searchUsed: false }
+        }
+      } catch { /* fall through to normal reply */ }
     }
 
     const systemPrompt = `${context}${consultationNote}${emailContext}${searchContext}

@@ -102,6 +102,7 @@ function janieRuleBased(msg: string): OrchestrateResult {
     [['hr', 'hire', 'onboard', 'knowledge', 'พนักงาน'], 'Raps'],
     [['procurement', 'vendor', 'จัดซื้อ', 'ราคา', 'เปรียบราคา', 'ผู้ขาย', 'supplier', 'po', 'price'], 'Ferin'],
     [['email', 'อีเมล', 'mail', 'inbox', 'gmail', 'ส่งเมล', 'เมล'], 'Nam'],
+    [['exploit', 'shortcut', 'ทางลัด', 'remote', 'ssh', 'rdp', 'สแกน network', 'เข้าถึงเครื่อง', 'ฝัง agent', 'automate', 'อัตโนมัติ'], 'Exploiter'],
   ]
 
   for (const [keywords, agent] of KEYWORDS) {

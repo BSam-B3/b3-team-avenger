@@ -41,7 +41,8 @@ const AGENTS = [
   { id: 'Nam',    th: 'คุณน้ำ',    role: 'Customer Support' },
   { id: 'Kom',    th: 'คุณคมน์',   role: 'Risk Officer' },
   { id: 'Raps',   th: 'แรปส์',    role: 'HR & Knowledge' },
-  { id: 'Ferin',  th: 'คุณเฟริน', role: 'Chief Procurement' },
+  { id: 'Ferin',    th: 'คุณเฟริน',   role: 'Chief Procurement' },
+  { id: 'Exploiter', th: 'Exploiter', role: 'IT Shortcut Agent' },
 ]
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -616,6 +617,111 @@ function BottomPanels({ logs, selectedAgent, tasks }: {
   )
 }
 
+// ─── Approval Banner ──────────────────────────────────────────────────────────
+
+interface AgentApproval {
+  id: string
+  action_type: string
+  risk_level: 'low' | 'medium' | 'high' | 'critical'
+  nam_summary: string
+  status: 'pending' | 'approved' | 'rejected'
+  created_at: string
+}
+
+const RISK_COLOR: Record<string, string> = {
+  low:      '#22c55e',
+  medium:   '#f59e0b',
+  high:     '#f87171',
+  critical: '#ef4444',
+}
+
+function ApprovalBanner({ approvals, onResolve }: {
+  approvals: AgentApproval[]
+  onResolve: (id: string, action: 'approve' | 'reject') => void
+}) {
+  if (approvals.length === 0) return null
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      style={{
+        margin: '6px 8px 0',
+        borderRadius: 8,
+        border: '1px solid rgba(239,68,68,0.4)',
+        background: 'rgba(239,68,68,0.06)',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Header */}
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 8,
+        padding: '6px 12px',
+        background: 'rgba(239,68,68,0.1)',
+        borderBottom: '1px solid rgba(239,68,68,0.2)',
+      }}>
+        <span style={{ fontSize: 14 }}>⚠️</span>
+        <span style={{ fontSize: 10, fontWeight: 900, color: '#f87171', letterSpacing: 1 }}>
+          EXPLOITER — รอ APPROVE ({approvals.length})
+        </span>
+        <span style={{ fontSize: 9, color: '#6b7280', marginLeft: 4 }}>
+          คุณน้ำสรุปไว้ให้แล้ว กรุณาอ่านและตัดสินใจ
+        </span>
+      </div>
+
+      {/* Approval cards */}
+      <div style={{ display: 'flex', gap: 8, padding: '8px 12px', overflowX: 'auto' }}>
+        {approvals.map(ap => (
+          <div key={ap.id} style={{
+            flexShrink: 0, width: 300,
+            background: '#0d1117',
+            border: `1px solid ${RISK_COLOR[ap.risk_level] ?? '#f59e0b'}44`,
+            borderRadius: 8, padding: '10px 12px',
+          }}>
+            {/* Risk badge + type */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+              <span style={{
+                fontSize: 9, fontWeight: 900, padding: '2px 8px', borderRadius: 20,
+                background: `${RISK_COLOR[ap.risk_level] ?? '#f59e0b'}22`,
+                border: `1px solid ${RISK_COLOR[ap.risk_level] ?? '#f59e0b'}44`,
+                color: RISK_COLOR[ap.risk_level] ?? '#f59e0b',
+                textTransform: 'uppercase',
+              }}>{ap.risk_level}</span>
+              <span style={{ fontSize: 10, fontWeight: 700, color: '#f0f6fc' }}>{ap.action_type}</span>
+            </div>
+
+            {/* Nam's summary */}
+            <div style={{ fontSize: 10, color: '#8b949e', lineHeight: 1.6, marginBottom: 10 }}>
+              {ap.nam_summary}
+            </div>
+
+            {/* Approve / Reject buttons */}
+            <div style={{ display: 'flex', gap: 6 }}>
+              <button
+                onClick={() => onResolve(ap.id, 'approve')}
+                style={{
+                  flex: 1, padding: '5px 0', fontSize: 10, fontWeight: 700,
+                  background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.4)',
+                  borderRadius: 6, color: '#4ade80', cursor: 'pointer',
+                }}>
+                ✅ Approve
+              </button>
+              <button
+                onClick={() => onResolve(ap.id, 'reject')}
+                style={{
+                  flex: 1, padding: '5px 0', fontSize: 10, fontWeight: 700,
+                  background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.3)',
+                  borderRadius: 6, color: '#f87171', cursor: 'pointer',
+                }}>
+                ❌ Reject
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  )
+}
+
 // ─── Top Nav ──────────────────────────────────────────────────────────────────
 
 function TopNav({ now, tasks }: { now: Date | null; tasks: AgentTask[] }) {
@@ -703,11 +809,12 @@ export default function DashboardClient({
   initialLogs: AgentLog[]
   initialTasks: AgentTask[]
 }) {
-  const [tasks,  setTasks]  = useState<AgentTask[]>(initialTasks)
-  const [logs,   setLogs]   = useState<AgentLog[]>(initialLogs)
-  const [now,    setNow]    = useState<Date | null>(null)
-  const [sel,    setSel]    = useState<string | null>(null)
-  const [speeches, setSpeeches] = useState<Record<string, string>>({})
+  const [tasks,     setTasks]     = useState<AgentTask[]>(initialTasks)
+  const [logs,      setLogs]      = useState<AgentLog[]>(initialLogs)
+  const [now,       setNow]       = useState<Date | null>(null)
+  const [sel,       setSel]       = useState<string | null>(null)
+  const [speeches,  setSpeeches]  = useState<Record<string, string>>({})
+  const [approvals, setApprovals] = useState<AgentApproval[]>([])
   const timers = useRef<Record<string, ReturnType<typeof setTimeout>>>({})
   const supabase = createClient()
 
@@ -716,6 +823,41 @@ export default function DashboardClient({
     setNow(new Date())
     const t = setInterval(() => setNow(new Date()), 1000)
     return () => clearInterval(t)
+  }, [])
+
+  // fetch pending approvals on mount
+  useEffect(() => {
+    fetch('/api/approvals')
+      .then(r => r.json())
+      .then(d => { if (d.approvals) setApprovals(d.approvals as AgentApproval[]) })
+      .catch(() => {/* silent */})
+  }, [])
+
+  // realtime: approvals
+  useEffect(() => {
+    const ch = supabase.channel('dash_approvals')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'agent_approvals' }, p => {
+        if (p.eventType === 'INSERT') {
+          setApprovals(prev => [p.new as AgentApproval, ...prev])
+        }
+        if (p.eventType === 'UPDATE') {
+          const u = p.new as AgentApproval
+          setApprovals(prev => u.status === 'pending'
+            ? prev.map(a => a.id === u.id ? u : a)
+            : prev.filter(a => a.id !== u.id)
+          )
+        }
+      }).subscribe()
+    return () => { supabase.removeChannel(ch) }
+  }, [supabase])
+
+  const handleResolveApproval = useCallback(async (id: string, action: 'approve' | 'reject') => {
+    setApprovals(prev => prev.filter(a => a.id !== id))
+    await fetch(`/api/approvals/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action }),
+    })
   }, [])
 
   // realtime: tasks
@@ -770,6 +912,9 @@ export default function DashboardClient({
 
       {/* Agent done toast notifications */}
       <Notifications />
+
+      {/* Exploiter Approval Banner */}
+      <ApprovalBanner approvals={approvals} onResolve={handleResolveApproval} />
 
       {/* Body */}
       <div style={{ flex:1, display:'flex', gap:8, padding:'8px', overflow:'hidden' }}>
