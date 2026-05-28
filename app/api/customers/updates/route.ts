@@ -123,7 +123,7 @@ export async function PATCH(req: NextRequest) {
       .insert({ ...parsed, source: 'learned' })
       .select('id')
       .single()
-    if (newC) await generateCustomerMd({ id: newC.id as string, name: parsed.name, ...parsed })
+    if (newC) await generateCustomerMd({ ...parsed, id: newC.id as string })
   }
 
   return NextResponse.json({ ok: true })
