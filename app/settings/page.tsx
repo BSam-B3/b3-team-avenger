@@ -8,6 +8,7 @@ interface BackendStatus {
   active: string; all: string[]
 }
 interface EmailStatus { google_client_id: boolean; microsoft_client: boolean }
+interface CalendarStatus { connected: boolean; email?: string }
 
 const BACKEND_INFO = [
   { key: 'gemini', label: 'Gemini 2.0 Flash', cost: '$0.075/1M', color: '#4ade80', envKey: 'GEMINI_API_KEY' },
@@ -19,6 +20,7 @@ const BACKEND_INFO = [
 export default function SettingsPage() {
   const [backends,  setBackends]  = useState<BackendStatus | null>(null)
   const [email,     setEmail]     = useState<EmailStatus | null>(null)
+  const [calendar,  setCalendar]  = useState<CalendarStatus | null>(null)
   const [settings,  setSettings]  = useState<Record<string,unknown>>({})
   const [loading,   setLoading]   = useState(true)
   const [saved,     setSaved]     = useState<string | null>(null)
@@ -30,6 +32,10 @@ export default function SettingsPage() {
       setSettings(d.settings ?? {})
       setLoading(false)
     })
+    // Load calendar status
+    fetch('/api/calendar').then(r => r.json()).then(d => {
+      setCalendar({ connected: d.connected ?? false })
+    }).catch(() => setCalendar({ connected: false }))
   }, [])
 
   const save = async (key: string, value: unknown) => {
@@ -93,17 +99,52 @@ export default function SettingsPage() {
           {/* Email Integration */}
           <Section title="📧 EMAIL INTEGRATION">
             {[
-              { label:'Gmail (Google OAuth)', on: email?.google_client_id, href:'/auth' },
-              { label:'Microsoft 365', on: email?.microsoft_client, href:'/auth' },
+              { label:'Gmail (surapong3331@gmail.com)', on: email?.google_client_id, href:'/auth' },
+              { label:'Microsoft 365 — PANDV', on: email?.microsoft_client, href:'/auth' },
+              { label:'CIT (C.I.T. Computer)', on: false, href:'/api/auth/cit' },
             ].map(e => (
               <div key={e.label} style={{ display:'flex', alignItems:'center', gap:12, padding:'8px 0', borderBottom:'1px solid #21262d' }}>
                 <div style={{ width:10, height:10, borderRadius:'50%', background: e.on ? '#22c55e' : '#374151' }} />
                 <span style={{ flex:1, fontSize:11, color: e.on ? '#f0f6fc' : '#4b5563' }}>{e.label}</span>
-                <Link href={e.href} style={{ fontSize:9, color:'#60a5fa', textDecoration:'none' }}>
+                <a href={e.href} style={{ fontSize:9, color:'#60a5fa', textDecoration:'none' }}>
                   {e.on ? 'Reconnect →' : 'Connect →'}
-                </Link>
+                </a>
               </div>
             ))}
+          </Section>
+
+          {/* Google Calendar */}
+          <Section title="📅 GOOGLE CALENDAR" subtitle="สำหรับนัดหมาย ตารางงาน sync มือถือ">
+            <div style={{ display:'flex', alignItems:'center', gap:12, padding:'10px 0' }}>
+              <div style={{ width:10, height:10, borderRadius:'50%', background: calendar?.connected ? '#22c55e' : '#374151', boxShadow: calendar?.connected ? '0 0 6px #22c55e' : 'none' }} />
+              <div style={{ flex:1 }}>
+                <div style={{ fontSize:11, fontWeight:600, color: calendar?.connected ? '#f0f6fc' : '#4b5563' }}>
+                  {calendar?.connected ? '✓ Google Calendar เชื่อมต่อแล้ว' : 'ยังไม่ได้เชื่อมต่อ Google Calendar'}
+                </div>
+                <div style={{ fontSize:9, color:'#4b5563', marginTop:2 }}>
+                  {calendar?.connected
+                    ? 'Janie สร้างนัดได้เลย — พิมพ์ "เจนนี่ นัดประชุม..."'
+                    : 'เชื่อมต่อเพื่อให้ Janie สร้าง/แก้นัดใน Google Calendar ได้โดยตรง'}
+                </div>
+              </div>
+              <a
+                href="/api/auth/gcal"
+                style={{
+                  padding:'5px 14px', borderRadius:6, fontSize:10, fontWeight:700,
+                  background: calendar?.connected ? 'rgba(34,197,94,0.1)' : 'rgba(96,165,250,0.15)',
+                  border: `1px solid ${calendar?.connected ? 'rgba(34,197,94,0.3)' : 'rgba(96,165,250,0.4)'}`,
+                  color: calendar?.connected ? '#4ade80' : '#60a5fa',
+                  textDecoration: 'none',
+                }}
+              >
+                {calendar?.connected ? '↻ Reconnect' : '+ เชื่อมต่อ'}
+              </a>
+            </div>
+            {!calendar?.connected && (
+              <div style={{ padding:'8px 12px', background:'rgba(96,165,250,0.06)', border:'1px solid rgba(96,165,250,0.2)', borderRadius:6, fontSize:10, color:'#60a5fa', marginTop:4 }}>
+                💡 หลังเชื่อมต่อแล้ว พิมพ์ใน chat เช่น <strong>"นัดกินข้าวพรุ่งนี้ 10 โมง"</strong> — event จะขึ้นมือถือทันที
+              </div>
+            )}
           </Section>
 
           {/* Telegram */}

@@ -67,6 +67,13 @@ const BACKEND_LABEL: Record<string, string> = {
   template: 'Template',
 }
 
+// FREE = ไม่มีค่าใช้จ่ายจริง, ค่าที่โชว์คือ estimate เท่านั้น
+const FREE_BACKENDS = new Set(['groq', 'gemini', 'template'])
+const FREE_QUOTA: Record<string, { daily: number; label: string }> = {
+  groq:   { daily: 14_400, label: 'req/วัน' },
+  gemini: { daily: 1_500,  label: 'req/วัน' },
+}
+
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 function StatCard({ label, value, sub, color = '#f59e0b' }: {
@@ -85,19 +92,48 @@ function StatCard({ label, value, sub, color = '#f59e0b' }: {
 }
 
 function BackendBar({ name, stats, total }: { name: string; stats: BackendStats; total: number }) {
-  const pct = total > 0 ? (stats.calls / total) * 100 : 0
-  const color = BACKEND_COLOR[name] ?? '#6b7280'
+  const pct     = total > 0 ? (stats.calls / total) * 100 : 0
+  const color   = BACKEND_COLOR[name] ?? '#6b7280'
+  const isFree  = FREE_BACKENDS.has(name)
+  const quota   = FREE_QUOTA[name]
+  const pctUsed = quota ? Math.round((stats.calls / quota.daily) * 100) : null
+
   return (
-    <div style={{ marginBottom: 8 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3, fontSize: 10 }}>
-        <span style={{ color: color, fontWeight: 600 }}>{BACKEND_LABEL[name] ?? name}</span>
+    <div style={{ marginBottom: 10 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3, fontSize: 10, alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ color, fontWeight: 600 }}>{BACKEND_LABEL[name] ?? name}</span>
+          {isFree && (
+            <span style={{
+              fontSize: 8, fontWeight: 700, padding: '1px 5px', borderRadius: 4,
+              background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.3)', color: '#4ade80',
+            }}>FREE</span>
+          )}
+          {!isFree && (
+            <span style={{
+              fontSize: 8, fontWeight: 700, padding: '1px 5px', borderRadius: 4,
+              background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)', color: '#f59e0b',
+            }}>PAID</span>
+          )}
+        </div>
         <span style={{ color: 'rgba(255,255,255,0.5)' }}>
-          {stats.calls} calls · {fmtTokens(stats.tokensIn + stats.tokensOut)} tok · {fmtCost(stats.costUsd)}
+          {stats.calls} calls · {fmtTokens(stats.tokensIn + stats.tokensOut)} tok
+          {isFree
+            ? <span style={{ color: '#4ade80', marginLeft: 4 }}>✓ ฟรี</span>
+            : <span style={{ color: '#f59e0b', marginLeft: 4 }}>{fmtCost(stats.costUsd)}</span>
+          }
         </span>
       </div>
       <div style={{ height: 4, background: 'rgba(255,255,255,0.08)', borderRadius: 2, overflow: 'hidden' }}>
         <div style={{ width: `${pct}%`, height: '100%', background: color, borderRadius: 2, transition: 'width 0.5s' }} />
       </div>
+      {quota && pctUsed !== null && (
+        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 3 }}>
+          Quota วันนี้: {stats.calls.toLocaleString()} / {quota.daily.toLocaleString()} {quota.label}
+          {' '}({100 - pctUsed}% เหลือ)
+          {pctUsed >= 80 && <span style={{ color: '#f87171', marginLeft: 4 }}>⚠ ใกล้เต็ม</span>}
+        </div>
+      )}
     </div>
   )
 }
@@ -127,8 +163,15 @@ export default function UsagePanel({ onClose }: Props) {
     return () => clearInterval(iv)
   }, [fetchStats])
 
-  const totalCalls  = stats?.totals.calls     ?? 0
-  const totalCostUsd = stats?.totals.costUsd  ?? 0
+  const totalCalls   = stats?.totals.calls    ?? 0
+  const totalCostUsd = stats?.totals.costUsd ?? 0
+  // คำนวณเฉพาะ backend ที่จ่ายจริง (ไม่รวม groq/gemini/template)
+  const paidCostUsd  = Object.entries(stats?.byBackend ?? {})
+    .filter(([name]) => !FREE_BACKENDS.has(name))
+    .reduce((sum, [, s]) => sum + s.costUsd, 0)
+  const freeCalls    = Object.entries(stats?.byBackend ?? {})
+    .filter(([name]) => FREE_BACKENDS.has(name))
+    .reduce((sum, [, s]) => sum + s.calls, 0)
 
   return (
     <motion.div
@@ -228,7 +271,12 @@ export default function UsagePanel({ onClose }: Props) {
                     {/* Stat cards */}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 16 }}>
                       <StatCard label="API Calls" value={totalCalls.toLocaleString()} sub="ทั้งหมด" />
-                      <StatCard label="ค่าใช้จ่ายรวม" value={fmtCost(totalCostUsd)} sub="USD (ประมาณ)" color="#10b981" />
+                      <StatCard
+                        label="จ่ายจริง (Paid API)"
+                        value={paidCostUsd > 0 ? fmtCost(paidCostUsd) : 'ฟรี ✓'}
+                        sub={paidCostUsd > 0 ? 'Claude/OpenAI เท่านั้น' : `${freeCalls} calls ใช้ Groq/Gemini ฟรี`}
+                        color={paidCostUsd > 0 ? '#f59e0b' : '#4ade80'}
+                      />
                       <StatCard
                         label="Tokens (Input)"
                         value={fmtTokens(stats.totals.tokensIn)}
