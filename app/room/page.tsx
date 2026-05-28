@@ -272,6 +272,12 @@ export default function PrivateRoom() {
           }}>
             📋 ประวัติ
           </Link>
+          <span style={{ color: '#1e293b' }}>│</span>
+          <Link href="/auth" style={{
+            fontSize: 11, color: '#34d399', textDecoration: 'none', fontWeight: 600,
+          }}>
+            🔌 Email
+          </Link>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <button

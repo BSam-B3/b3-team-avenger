@@ -20,6 +20,14 @@ import { callAITracked, detectBackend } from '@/lib/ai/client'
 import { webSearch, shouldSearch } from '@/lib/ai/search'
 import { loadAgentContext } from '@/lib/agents/context'
 import { getConsultation } from '@/lib/agents/consult'
+import { getEmailContext } from '@/lib/email'
+
+const EMAIL_KEYWORDS = ['email', 'อีเมล', 'mail', 'inbox', 'gmail', 'outlook', 'ส่งเมล', 'เมล', 'สรุปเมล', 'ตรวจเมล']
+
+function needsEmail(taskDetail: string): boolean {
+  const lower = taskDetail.toLowerCase()
+  return EMAIL_KEYWORDS.some(kw => lower.includes(kw))
+}
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -62,7 +70,13 @@ async function generateResponse(
     // 2. Peer consultation for complex tasks
     const consultationNote = await getConsultation(agentId, taskDetail, 'deep')
 
-    // 3. Optional web search when context is thin or task explicitly needs external info
+    // 3. Fetch real emails if task involves email
+    let emailContext = ''
+    if (needsEmail(taskDetail)) {
+      emailContext = await getEmailContext(8)
+    }
+
+    // 4. Optional web search when context is thin or task explicitly needs external info
     let searchContext = ''
     let searchUsed = false
 
@@ -74,7 +88,7 @@ async function generateResponse(
       }
     }
 
-    const systemPrompt = `${context}${consultationNote}${searchContext}
+    const systemPrompt = `${context}${consultationNote}${emailContext}${searchContext}
 
 Task จาก Janie: "${taskDetail}"
 
