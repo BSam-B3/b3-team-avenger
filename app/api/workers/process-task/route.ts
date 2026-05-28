@@ -221,7 +221,7 @@ Task จาก Janie: "${taskDetail}"
     )
 
     // Extract [LEARN: ...] tag and save to B3 memory (non-blocking)
-    const learnMatch = rawReply.match(/\[LEARN:\s*(.+?)\]/s)
+    const learnMatch = rawReply.match(/\[LEARN:\s*([\s\S]+?)\]/)
     const reply = rawReply.replace(/\[LEARN:[^\]]*\]/g, '').trim()
     const appUrl3 = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3001'
 
