@@ -117,13 +117,13 @@ export async function PATCH(req: NextRequest) {
 
   } else if (upd.customer_name && upd.field === 'new_customer') {
     // สร้างลูกค้าใหม่
-    const parsed = JSON.parse(upd.new_value) as Record<string, string>
+    const parsed = JSON.parse(upd.new_value) as { name: string; [k: string]: string }
     const { data: newC } = await supabase
       .from('customers')
       .insert({ ...parsed, source: 'learned' })
       .select('id')
       .single()
-    if (newC) await generateCustomerMd({ id: newC.id, ...parsed })
+    if (newC) await generateCustomerMd({ id: newC.id as string, name: parsed.name, ...parsed })
   }
 
   return NextResponse.json({ ok: true })
