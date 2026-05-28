@@ -63,6 +63,7 @@ export async function loadAllContexts(): Promise<Record<string, string>> {
   const AGENT_IDS = [
     'Janie','Joe','Enjoy','Fenton','Karn','Kitti',
     'Nara','Metha','Pim','Win','Nam','Kom','Raps','Ferin',
+    'Exploiter','Chief','Finley',
   ]
   const result: Record<string, string> = {}
   await Promise.all(AGENT_IDS.map(async id => {

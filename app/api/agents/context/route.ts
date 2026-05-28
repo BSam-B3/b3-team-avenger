@@ -1,6 +1,8 @@
 /**
  * GET  /api/agents/context?agent_id=X  — load agent context (DB first, .md fallback)
  * POST /api/agents/context             — save/update agent context to DB
+ *
+ * NOTE: agent_contexts table uses column name "context" (not context_text)
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -21,11 +23,17 @@ export async function GET(req: NextRequest) {
   // 1. Try Supabase DB
   const { data } = await supabase
     .from('agent_contexts')
-    .select('agent_id, context_text, updated_at')
+    .select('agent_id, context, updated_at')
     .eq('agent_id', agentId)
     .single()
 
-  if (data) return NextResponse.json({ ok: true, context: data, source: 'db' })
+  if (data) {
+    return NextResponse.json({
+      ok: true,
+      context: { agent_id: data.agent_id, context_text: data.context, updated_at: data.updated_at },
+      source: 'db',
+    })
+  }
 
   // 2. Fallback to .md file
   try {
@@ -43,21 +51,25 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const { agent_id, context_text } = await req.json() as { agent_id: string; context_text: string }
-  if (!agent_id || !context_text) return NextResponse.json({ error: 'agent_id and context_text required' }, { status: 400 })
+  if (!agent_id || !context_text) {
+    return NextResponse.json({ error: 'agent_id and context_text required' }, { status: 400 })
+  }
 
-  const { data, error } = await supabase
+  // Save using actual column name "context"
+  const { error } = await supabase
     .from('agent_contexts')
-    .upsert({ agent_id, context_text, updated_at: new Date().toISOString() }, { onConflict: 'agent_id' })
-    .select()
-    .single()
+    .upsert(
+      { agent_id, context: context_text, updated_by: 'team_page', updated_at: new Date().toISOString() },
+      { onConflict: 'agent_id' }
+    )
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
   await supabase.from('agent_logs').insert({
-    agent_name: agent_id,
+    agent_name:  agent_id,
     action_desc: '📝 context updated from Team page',
-    status: 'completed',
+    status:      'completed',
   })
 
-  return NextResponse.json({ ok: true, context: data })
+  return NextResponse.json({ ok: true })
 }

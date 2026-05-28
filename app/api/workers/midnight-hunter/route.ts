@@ -34,6 +34,9 @@ const AGENT_UNIVERSE: Record<string, { domain: string; curiosity: string; emoji:
   Win:    { domain: 'startup business development Thailand 2026', curiosity: 'global venture capital trends emerging markets', emoji: '🚀' },
   Kom:    { domain: 'cybersecurity risk management 2026', curiosity: 'AI-powered threat detection zero trust', emoji: '🛡️' },
   Ferin:  { domain: 'procurement vendor management supply chain 2026', curiosity: 'sustainable procurement ESG supply chain', emoji: '📦' },
+  Nara:   { domain: 'visual design branding creative direction Thailand 2026', curiosity: 'AI image generation midjourney sora creative workflow', emoji: '🎭' },
+  Pim:    { domain: 'accounting tax compliance Thailand SME 2026', curiosity: 'fintech automation bookkeeping AI', emoji: '📒' },
+  Nam:    { domain: 'customer service CX trends Thailand 2026', curiosity: 'conversational AI chatbot empathy UX', emoji: '💬' },
 }
 
 async function ingestKnowledge(agentId: string, source: string, content: string, appUrl: string) {

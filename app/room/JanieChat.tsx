@@ -109,7 +109,7 @@ function Bubble({ msg }: { msg: ChatMessage }) {
 
       {/* Bubble */}
       <div style={{
-        maxWidth:     '78%',
+        maxWidth:     '85%',
         background:   isUser
           ? 'linear-gradient(135deg, #1e3a5f, #1a2f4a)'
           : msg.role === 'summary'
@@ -131,9 +131,9 @@ function Bubble({ msg }: { msg: ChatMessage }) {
           </div>
         )}
         <div style={{
-          fontSize:   12,
+          fontSize:   13,
           color:      isUser ? '#e2e8f0' : '#cbd5e1',
-          lineHeight: 1.55,
+          lineHeight: 1.65,
           whiteSpace: 'pre-wrap',
           wordBreak:  'break-word',
         }}>
@@ -380,38 +380,52 @@ export default function JanieChat({ onClose }: Props) {
   }
 
   return (
+    <>
+      {/* Backdrop */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        style={{
+          position: 'fixed', inset: 0,
+          background: 'rgba(0,0,0,0.45)',
+          backdropFilter: 'blur(3px)',
+          zIndex: 199,
+        }}
+      />
+
     <motion.div
-      initial={{ opacity: 0, x: 40, scale: 0.96 }}
-      animate={{ opacity: 1, x: 0, scale: 1 }}
-      exit={{ opacity: 0, x: 40, scale: 0.96 }}
-      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+      initial={{ opacity: 0, x: '100%' }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: '100%' }}
+      transition={{ type: 'spring', stiffness: 340, damping: 32 }}
       style={{
         position:       'fixed',
-        right:          16,
-        top:            '50%',
-        transform:      'translateY(-50%)',
-        width:          360,
-        maxHeight:      '85vh',
+        right:          0,
+        top:            0,
+        bottom:         0,
+        width:          'min(480px, 95vw)',
         display:        'flex',
         flexDirection:  'column',
-        background:     'rgba(10,14,26,0.97)',
-        border:         '1px solid rgba(99,102,241,0.3)',
-        borderRadius:   16,
-        boxShadow:      '0 30px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(99,102,241,0.1)',
+        background:     'rgba(8,12,22,0.98)',
+        borderLeft:     '1px solid rgba(99,102,241,0.25)',
+        boxShadow:      '-20px 0 60px rgba(0,0,0,0.6)',
         zIndex:         200,
         fontFamily:     'system-ui, sans-serif',
-        backdropFilter: 'blur(20px)',
+        backdropFilter: 'blur(24px)',
         overflow:       'hidden',
       }}
     >
       {/* ── Header ── */}
       <div style={{
-        padding:        '12px 14px',
+        padding:        '16px 18px',
         borderBottom:   '1px solid rgba(99,102,241,0.2)',
         display:        'flex',
         alignItems:     'center',
-        gap:            10,
-        background:     'linear-gradient(180deg, rgba(99,102,241,0.08) 0%, transparent 100%)',
+        gap:            12,
+        background:     'linear-gradient(180deg, rgba(99,102,241,0.1) 0%, transparent 100%)',
+        flexShrink:     0,
       }}>
         <div style={{
           width: 34, height: 34, borderRadius: '50%',
@@ -423,14 +437,15 @@ export default function JanieChat({ onClose }: Props) {
           👩‍💼
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#c7d2fe' }}>Janie</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#c7d2fe', letterSpacing: 0.3 }}>Janie</div>
+          <div style={{ fontSize: 11, color: '#475569', marginBottom: 2 }}>AI Orchestrator · B3 Team Avenger</div>
           <div style={{
-            fontSize: 10, color: polling ? '#22c55e' : '#64748b',
+            fontSize: 11, color: polling ? '#22c55e' : '#64748b',
             display: 'flex', alignItems: 'center', gap: 4,
           }}>
             {polling
-              ? <><span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#22c55e', animation: 'blink 1s ease-in-out infinite' }} /> กำลังประมวลผล...</>
-              : <><span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#22c55e' }} /> พร้อมรับคำสั่ง</>
+              ? <><span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: '#22c55e', animation: 'blink 1s ease-in-out infinite' }} /> กำลังประมวลผล...</>
+              : <><span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: '#22c55e' }} /> พร้อมรับคำสั่ง</>
             }
           </div>
         </div>
@@ -450,7 +465,7 @@ export default function JanieChat({ onClose }: Props) {
       <div style={{
         flex:       1,
         overflowY:  'auto',
-        padding:    '12px 12px 4px',
+        padding:    '16px 16px 8px',
         minHeight:  0,
         scrollbarWidth: 'thin',
         scrollbarColor: 'rgba(99,102,241,0.2) transparent',
@@ -520,14 +535,14 @@ export default function JanieChat({ onClose }: Props) {
           onChange={e => setInput(e.target.value)}
           onKeyDown={handleKey}
           placeholder="พิมพ์คำสั่งหรืองานที่ต้องการ... (Enter ส่ง, Shift+Enter ขึ้นบรรทัด)"
-          rows={2}
+          rows={3}
           style={{
             flex:        1,
             background:  'rgba(255,255,255,0.04)',
             border:      '1px solid rgba(99,102,241,0.25)',
             borderRadius: 10,
-            padding:     '8px 10px',
-            fontSize:    12,
+            padding:     '10px 12px',
+            fontSize:    13,
             color:       '#e2e8f0',
             resize:      'none',
             outline:     'none',
@@ -565,5 +580,6 @@ export default function JanieChat({ onClose }: Props) {
         @keyframes bounce { 0%,100% { transform:translateY(0) } 50% { transform:translateY(-4px) } }
       `}</style>
     </motion.div>
+    </>
   )
 }

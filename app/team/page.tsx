@@ -27,6 +27,8 @@ const AGENTS = [
   { id: 'Raps',     th: 'แรปส์',      role: 'HR & Knowledge',     color: '#f87171' },
   { id: 'Ferin',    th: 'คุณเฟริน',   role: 'Chief Procurement',  color: '#c084fc' },
   { id: 'Exploiter',th: 'Exploiter',  role: 'IT Shortcut Agent',  color: '#ef4444' },
+  { id: 'Chief',    th: 'Chief',      role: 'Data Architect',     color: '#94a3b8' },
+  { id: 'Finley',   th: 'คุณฟินลีย์', role: 'Financial Liaison',  color: '#34d399' },
 ]
 
 export default function TeamPage() {
