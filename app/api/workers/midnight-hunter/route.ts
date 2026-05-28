@@ -28,14 +28,12 @@ const AGENT_UNIVERSE: Record<string, { domain: string; curiosity: string; emoji:
   Fenton: { domain: 'software testing automation QA 2026', curiosity: 'chaos engineering fault tolerance', emoji: '🔬' },
   Karn:   { domain: 'digital marketing Thailand social media 2026', curiosity: 'creator economy viral content strategy', emoji: '📣' },
   Kitti:  { domain: 'Thai business law PDPA compliance 2026', curiosity: 'AI regulation global legal landscape', emoji: '⚖️' },
-  Nara:   { domain: 'visual design branding creative direction 2026', curiosity: 'AI image generation art direction', emoji: '🖼️' },
+  Nara:   { domain: 'visual design branding creative direction Thailand 2026', curiosity: 'AI image generation midjourney sora creative workflow', emoji: '🎭' },
   Metha:  { domain: 'Thai financial markets SET index 2026', curiosity: 'DeFi crypto institutional adoption', emoji: '📊' },
-  Pim:    { domain: 'accounting tax compliance Thailand 2026', curiosity: 'blockchain accounting automation', emoji: '📒' },
+  Pim:    { domain: 'accounting tax compliance Thailand SME 2026', curiosity: 'fintech automation bookkeeping AI', emoji: '📒' },
   Win:    { domain: 'startup business development Thailand 2026', curiosity: 'global venture capital trends emerging markets', emoji: '🚀' },
   Kom:    { domain: 'cybersecurity risk management 2026', curiosity: 'AI-powered threat detection zero trust', emoji: '🛡️' },
   Ferin:  { domain: 'procurement vendor management supply chain 2026', curiosity: 'sustainable procurement ESG supply chain', emoji: '📦' },
-  Nara:   { domain: 'visual design branding creative direction Thailand 2026', curiosity: 'AI image generation midjourney sora creative workflow', emoji: '🎭' },
-  Pim:    { domain: 'accounting tax compliance Thailand SME 2026', curiosity: 'fintech automation bookkeeping AI', emoji: '📒' },
   Nam:    { domain: 'customer service CX trends Thailand 2026', curiosity: 'conversational AI chatbot empathy UX', emoji: '💬' },
 }
 
