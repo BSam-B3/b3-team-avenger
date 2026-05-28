@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { detectBackend, getAvailableBackends } from '@/lib/ai/client'
+import { getToken } from '@/lib/email/tokens'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -36,12 +37,24 @@ export async function GET() {
     all:      backends,
   }
 
+  // Real OAuth token connection status
+  const [gmailTok, m365Tok, citTok, gcalTok] = await Promise.all([
+    getToken('gmail'), getToken('m365'), getToken('cit'), getToken('gcal'),
+  ])
+
+  const connections = {
+    gmail: { connected: !!gmailTok?.refresh_token, email: gmailTok?.email ?? '' },
+    m365:  { connected: !!m365Tok?.refresh_token,  email: m365Tok?.email  ?? '' },
+    cit:   { connected: !!citTok?.refresh_token,   email: citTok?.email   ?? '' },
+    gcal:  { connected: !!gcalTok?.refresh_token,  email: gcalTok?.email  ?? '' },
+  }
+
   const emailStatus = {
     google_client_id:  !!process.env.GOOGLE_CLIENT_ID,
     microsoft_client:  !!process.env.MICROSOFT_CLIENT_ID,
   }
 
-  return NextResponse.json({ ok: true, settings, backendStatus, emailStatus, rows: data ?? [] })
+  return NextResponse.json({ ok: true, settings, backendStatus, emailStatus, connections, rows: data ?? [] })
 }
 
 export async function POST(req: NextRequest) {
