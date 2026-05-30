@@ -19,6 +19,10 @@ interface TaskRow {
   due_date: string | null
   progress_percent: number
   tags: string[]
+  assigned_agent?: string
+  agent_type?: 'AI' | 'Manual' | 'Hybrid'
+  integration_type?: 'API' | 'Local' | 'Hybrid' | 'Manual'
+  external_tools?: string[]
 }
 
 const STATUS_TABS = [
@@ -382,12 +386,45 @@ export default function TasksPage() {
                     </div>
                     <p className="text-sm text-gray-600 mb-2 line-clamp-2">{task.description}</p>
 
+                    {/* Tags + Agent/Integration info */}
                     <div className="flex flex-wrap gap-2 mb-2">
                       {task.tags.map(tag => (
                         <span key={tag} className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded">
                           #{tag}
                         </span>
                       ))}
+                      {/* Agent badge */}
+                      {task.assigned_agent && (
+                        <span className={`text-xs px-2 py-1 rounded font-medium ${
+                          task.assigned_agent === 'Claude' ? 'bg-purple-100 text-purple-700' :
+                          task.assigned_agent === 'Gemini' ? 'bg-orange-100 text-orange-700' :
+                          task.assigned_agent === 'Openclaw' ? 'bg-cyan-100 text-cyan-700' :
+                          'bg-gray-100 text-gray-700'
+                        }`}>
+                          🤖 {task.assigned_agent}
+                        </span>
+                      )}
+                      {/* Integration type badge */}
+                      {task.integration_type && (
+                        <span className={`text-xs px-2 py-1 rounded font-medium ${
+                          task.integration_type === 'API' ? 'bg-green-100 text-green-700' :
+                          task.integration_type === 'Local' ? 'bg-yellow-100 text-yellow-700' :
+                          task.integration_type === 'Hybrid' ? 'bg-indigo-100 text-indigo-700' :
+                          'bg-gray-100 text-gray-700'
+                        }`}>
+                          {task.integration_type === 'API' && '🌐'}
+                          {task.integration_type === 'Local' && '💻'}
+                          {task.integration_type === 'Hybrid' && '⚡'}
+                          {task.integration_type === 'Manual' && '✋'}
+                          {' '}{task.integration_type}
+                        </span>
+                      )}
+                      {/* External tools */}
+                      {task.external_tools && task.external_tools.length > 0 && (
+                        <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded" title={task.external_tools.join(', ')}>
+                          🔧 {task.external_tools.slice(0, 2).join(', ')}{task.external_tools.length > 2 ? '...' : ''}
+                        </span>
+                      )}
                     </div>
 
                     <ProgressBar progress={task.progress_percent} />
