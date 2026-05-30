@@ -354,7 +354,7 @@ export default function TasksPage() {
         </div>
 
         {/* Task List */}
-        <div className="space-y-3">
+        <div className="space-y-3 max-h-[calc(100vh-320px)] overflow-y-auto pr-2">
           {filteredTasks.length > 0 ? (
             filteredTasks.map(task => (
               <div key={task.id} className="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow border border-gray-200">
