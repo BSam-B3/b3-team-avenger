@@ -12,6 +12,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { listCalendarEvents } from '@/lib/calendar/google'
 import { sendTelegram } from '@/lib/notify/telegram'
+import { logError } from '@/lib/logging/error-tracker'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -32,7 +33,7 @@ export async function GET() {
     // ─── 1. Get today's calendar events ───────────────────────────────────────
     const events = await listCalendarEvents(20)
     const todayEvents = events.filter(e => {
-      const start = new Date(e.start?.dateTime ?? e.start?.date ?? '')
+      const start = new Date(e.startTime)
       return start >= today && start < new Date(today.getTime() + 86400000)
     })
 
@@ -53,9 +54,11 @@ export async function GET() {
       lines.push('')
       lines.push(`📅 <b>วันนี้มี ${todayEvents.length} นัด</b>`)
       for (const e of todayEvents) {
-        const t = e.start?.dateTime
-          ? new Date(e.start.dateTime).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
-          : 'ทั้งวัน'
+        const startDate = new Date(e.startTime)
+        const isAllDay = e.startTime.length === 10
+        const t = isAllDay
+          ? 'ทั้งวัน'
+          : startDate.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
         const title = e.summary ?? '(ไม่มีชื่อ)'
         const isOnsite = ONSITE_KEYWORDS.some(kw => title.toLowerCase().includes(kw))
         const icon = isOnsite ? '🚗' : '📌'
@@ -100,6 +103,14 @@ export async function GET() {
     })
   } catch (err) {
     console.error('[morning-brief error]', err)
+    await logError({
+      endpoint: '/api/workers/morning-brief',
+      method: 'GET',
+      status: 500,
+      error: err instanceof Error ? err.message : String(err),
+      stack: err instanceof Error ? err.stack : undefined,
+      severity: 'critical',
+    })
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }
 }

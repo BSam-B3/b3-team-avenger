@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { callAIForJSON, callAI, detectBackend } from '@/lib/ai/client'
-import { loadAgentContext } from '@/lib/agents/context'
+import { callAIForJSON, detectBackend } from '@/lib/ai/client'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -30,7 +29,6 @@ const AGENTS_CONTEXT = `
 interface ParsedTask { assigned_to: string; task_detail: string }
 
 async function janieAI(directive: string): Promise<ParsedTask[]> {
-  const janieCtx = await loadAgentContext('Janie')
   const system = `คุณคือ Janie AI Orchestrator ของทีม B3 Team Avenger
 ${AGENTS_CONTEXT}
 

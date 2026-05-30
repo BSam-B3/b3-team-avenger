@@ -12,6 +12,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { sendTelegram } from '@/lib/notify/telegram'
+import { logError } from '@/lib/logging/error-tracker'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -150,6 +151,14 @@ export async function POST(req: NextRequest) {
     })
   } catch (err) {
     console.error('[mobile/voice error]', err)
+    await logError({
+      endpoint: '/api/mobile/voice',
+      method: 'POST',
+      status: 500,
+      error: err instanceof Error ? err.message : String(err),
+      stack: err instanceof Error ? err.stack : undefined,
+      severity: 'critical',
+    })
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }
 }

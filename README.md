@@ -1,36 +1,93 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# B3 Team Avenger — AI-Powered Enterprise System
 
-## Getting Started
+Complete AI orchestration system for B3 Corporation IT Support & Business Operations.
 
-First, run the development server:
+## 🏗️ Architecture Overview
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+**TIER 1:** Morning Operations (crons)
+- 08:00 ICT: Morning Brief (calendar + open tickets)
+- Email unread badge on dashboard
+
+**TIER 2:** Email Secretary (cron)
+- 09:00 ICT: Scan M365 → summarize → Telegram
+
+**TIER 3:** PDF + SharePoint
+- Ticket resolutions → PDF generation
+- Microsoft Graph API + SendGrid email
+
+**TIER 4a:** Quotation System
+- Templates + Vendor DB
+- Boss 1-click approval via Telegram
+
+**TIER 4b:** Mobile S26 Voice Gateway
+- Voice commands → Intent parser
+- Brief Telegram notifications
+
+**TIER 4c:** IT Jarvis Checklist
+- On-site equipment checklists
+- Photo upload + progress tracking
+
+## 📁 Project Structure
+
+```
+app/api/workers/          — Cron jobs (morning-brief, email-secretary)
+app/api/pdf/              — PDF generation
+app/api/quotation/        — Quotation system (create/approve/reject)
+app/api/mobile/           — Voice command gateway
+app/api/jarvis/           — IT checklist endpoints
+app/quotation/            — Dashboard page
+app/mobile/               — Voice commands page
+app/jarvis/               — Checklist page
+lib/graph/                — Microsoft Graph client
+lib/pdf/                  — PDF utilities
+lib/setup/                — Database schemas
+scripts/                  — Seeding scripts
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Quick Start
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Set env vars in .env.local
+AZURE_CLIENT_ID=...
+SENDGRID_API_KEY=...
+MOBILE_API_KEY=...
 
-## Learn More
+# Run migrations
+psql $DATABASE_URL < app/lib/setup/quotation-schema.sql
+psql $DATABASE_URL < app/lib/setup/mobile-schema.sql
+psql $DATABASE_URL < app/lib/setup/jarvis-schema.sql
 
-To learn more about Next.js, take a look at the following resources:
+# Seed data
+psql $DATABASE_URL < scripts/seed-database.sql
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Develop
+npm run dev
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Deploy
+npm run build
+vercel deploy --prod
+```
 
-## Deploy on Vercel
+## 📊 Dashboards
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `/quotation` — All quotations (status + cost)
+- `/mobile` — Voice command history
+- `/jarvis` — Checklist progress
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🔐 Security
+
+- API key auth on mobile endpoint
+- Approval required for quotations
+- Read-only probes on Jarvis
+- Token lifecycle managed
+
+## 📞 Docs
+
+- [Deployment](./DEPLOYMENT.md)
+- [Bridge Protocol](../wiki/BRIDGE-PROTOCOL.md)
+- [Architecture](../Gemini%20Project2.md)
+
+---
+Built by Claude + Openclaw | Status: PRODUCTION READY
