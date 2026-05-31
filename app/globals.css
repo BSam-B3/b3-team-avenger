@@ -46,6 +46,11 @@ body {
   50%       { transform: translateY(-3px); }
 }
 
+@keyframes sprite-bob {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-4px); }
+}
+
 @keyframes progress-glow {
   0%, 100% { box-shadow: 0 0 4px #22c55e66; }
   50%       { box-shadow: 0 0 10px #22c55e99; }
