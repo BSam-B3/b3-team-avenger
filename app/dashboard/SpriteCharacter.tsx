@@ -53,8 +53,6 @@ interface FrameSeqDef {
  */
 const FRAME_SEQ_CHARS: Partial<Record<string, FrameSeqDef>> = {
   // ── Janie ──────────────────────────────────────────────────────────────────
-  // Files: idle.png, Work.png, BUp.png, Down Walk1.png, Down Walk2.png,
-  //        Up Walk1.png, Up Walk2.png, LR1.png, LR2 Walk.png
   Janie: {
     base:     '/characters/sheets/Janie',
     displayW: 70,
@@ -64,15 +62,12 @@ const FRAME_SEQ_CHARS: Partial<Record<string, FrameSeqDef>> = {
       sit:        { fps: 1, frames: ['Work.png'] },
       walk_down:  { fps: 6, frames: ['Down Walk1.png', 'Down Walk2.png'] },
       walk_up:    { fps: 6, frames: ['Up Walk1.png', 'Up Walk2.png'] },
-      walk_left:  { fps: 6, frames: ['LR1.png', 'LR2 Walk.png'] },
-      walk_right: { fps: 6, frames: ['LR1.png', 'LR2 Walk.png'], flipX: true },
+      walk_left:  { fps: 6, frames: ['LR1.png', 'LR2 Walk.png'], flipX: true },
+      walk_right: { fps: 6, frames: ['LR1.png', 'LR2 Walk.png'] },
     },
   },
 
   // ── Joe ────────────────────────────────────────────────────────────────────
-  // Files: Idle1.png, Idle2.png, BUp Walk.png, Down Wlak.png (typo),
-  //        L2 Walk.png, R2 Walk.png, LR1.png, UP Walk2.png, Up Walk1.png
-  // No Work.png → use BUp Walk.png for sit
   Joe: {
     base:     '/characters/sheets/Joe',
     displayW: 70,
@@ -82,14 +77,12 @@ const FRAME_SEQ_CHARS: Partial<Record<string, FrameSeqDef>> = {
       sit:        { fps: 1, frames: ['BUp Walk.png'] },
       walk_down:  { fps: 4, frames: ['Down Wlak.png'] },
       walk_up:    { fps: 6, frames: ['Up Walk1.png', 'UP Walk2.png'] },
-      walk_left:  { fps: 4, frames: ['L2 Walk.png'] },
-      walk_right: { fps: 4, frames: ['R2 Walk.png'] },
+      walk_left:  { fps: 4, frames: ['R2 Walk.png'] },
+      walk_right: { fps: 4, frames: ['L2 Walk.png'] },
     },
   },
 
   // ── Enjoy ──────────────────────────────────────────────────────────────────
-  // Files: Idle.png, Work.png, BUp Walk2.png, Down Walk1.png, Down Walk2.png,
-  //        L Walk1.png, LR.png, R Walk1.png, Up Walk.png
   Enjoy: {
     base:     '/characters/sheets/Enjoy',
     displayW: 70,
@@ -99,14 +92,12 @@ const FRAME_SEQ_CHARS: Partial<Record<string, FrameSeqDef>> = {
       sit:        { fps: 1, frames: ['Work.png'] },
       walk_down:  { fps: 6, frames: ['Down Walk1.png', 'Down Walk2.png'] },
       walk_up:    { fps: 4, frames: ['Up Walk.png'] },
-      walk_left:  { fps: 4, frames: ['L Walk1.png'] },
-      walk_right: { fps: 4, frames: ['R Walk1.png'] },
+      walk_left:  { fps: 4, frames: ['R Walk1.png'] },
+      walk_right: { fps: 4, frames: ['L Walk1.png'] },
     },
   },
 
   // ── Metha ──────────────────────────────────────────────────────────────────
-  // Files: Idle.png, Work.png, BUp Walk.png, Down Walk1.png, Down Walk2.png,
-  //        LR1.png, LR2 Walk.png, Up Walk1.png
   Metha: {
     base:     '/characters/sheets/Metha',
     displayW: 70,
@@ -116,15 +107,12 @@ const FRAME_SEQ_CHARS: Partial<Record<string, FrameSeqDef>> = {
       sit:        { fps: 1, frames: ['Work.png'] },
       walk_down:  { fps: 6, frames: ['Down Walk1.png', 'Down Walk2.png'] },
       walk_up:    { fps: 4, frames: ['Up Walk1.png'] },
-      walk_left:  { fps: 6, frames: ['LR1.png', 'LR2 Walk.png'] },
-      walk_right: { fps: 6, frames: ['LR1.png', 'LR2 Walk.png'], flipX: true },
+      walk_left:  { fps: 6, frames: ['LR1.png', 'LR2 Walk.png'], flipX: true },
+      walk_right: { fps: 6, frames: ['LR1.png', 'LR2 Walk.png'] },
     },
   },
 
   // ── Karn ───────────────────────────────────────────────────────────────────
-  // Files: Idle1.png, Idle2.png, Work.png, BUp Walk.png,
-  //        Down Wlak1.png (typo), Down Wlak2.png (typo),
-  //        LR Walk2.png, LR1.png, Up Walk1.png, Up Walk2.png
   Karn: {
     base:     '/characters/sheets/Karn',
     displayW: 70,
@@ -134,15 +122,12 @@ const FRAME_SEQ_CHARS: Partial<Record<string, FrameSeqDef>> = {
       sit:        { fps: 1, frames: ['Work.png'] },
       walk_down:  { fps: 6, frames: ['Down Wlak1.png', 'Down Wlak2.png'] },
       walk_up:    { fps: 6, frames: ['Up Walk1.png', 'Up Walk2.png'] },
-      walk_left:  { fps: 6, frames: ['LR1.png', 'LR Walk2.png'] },
-      walk_right: { fps: 6, frames: ['LR1.png', 'LR Walk2.png'], flipX: true },
+      walk_left:  { fps: 6, frames: ['LR1.png', 'LR Walk2.png'], flipX: true },
+      walk_right: { fps: 6, frames: ['LR1.png', 'LR Walk2.png'] },
     },
   },
 
   // ── kitti ──────────────────────────────────────────────────────────────────
-  // Files: Idle.png, Down Walk1.png, Down Walk2.png, LR1.png, LR2 Walk.png,
-  //        Up Walk1.png, Up Walk2.png
-  // No Work.png → use Up Walk1.png for sit; folder is lowercase 'kitti'
   kitti: {
     base:     '/characters/sheets/kitti',
     displayW: 70,
@@ -152,8 +137,8 @@ const FRAME_SEQ_CHARS: Partial<Record<string, FrameSeqDef>> = {
       sit:        { fps: 1, frames: ['Up Walk1.png'] },
       walk_down:  { fps: 6, frames: ['Down Walk1.png', 'Down Walk2.png'] },
       walk_up:    { fps: 6, frames: ['Up Walk1.png', 'Up Walk2.png'] },
-      walk_left:  { fps: 6, frames: ['LR1.png', 'LR2 Walk.png'] },
-      walk_right: { fps: 6, frames: ['LR1.png', 'LR2 Walk.png'], flipX: true },
+      walk_left:  { fps: 6, frames: ['LR1.png', 'LR2 Walk.png'], flipX: true },
+      walk_right: { fps: 6, frames: ['LR1.png', 'LR2 Walk.png'] },
     },
   },
   // Alias — OfficeMap uses 'Kitti' (capital K) as agent id
@@ -166,16 +151,12 @@ const FRAME_SEQ_CHARS: Partial<Record<string, FrameSeqDef>> = {
       sit:        { fps: 1, frames: ['Up Walk1.png'] },
       walk_down:  { fps: 6, frames: ['Down Walk1.png', 'Down Walk2.png'] },
       walk_up:    { fps: 6, frames: ['Up Walk1.png', 'Up Walk2.png'] },
-      walk_left:  { fps: 6, frames: ['LR1.png', 'LR2 Walk.png'] },
-      walk_right: { fps: 6, frames: ['LR1.png', 'LR2 Walk.png'], flipX: true },
+      walk_left:  { fps: 6, frames: ['LR1.png', 'LR2 Walk.png'], flipX: true },
+      walk_right: { fps: 6, frames: ['LR1.png', 'LR2 Walk.png'] },
     },
   },
 
   // ── Nara ───────────────────────────────────────────────────────────────────
-  // Files: idle Front.png, BUp Walk.png, Down Walk1.png, Down Walk2.png,
-  //        Down Walk3.png, L Walk1.png, LR1.png, R Walk1.png,
-  //        Up Walk1.png, Up Walk2.png, Up Walk3.png
-  // folder is lowercase 'nara'
   Nara: {
     base:     '/characters/sheets/nara',
     displayW: 70,
@@ -185,15 +166,12 @@ const FRAME_SEQ_CHARS: Partial<Record<string, FrameSeqDef>> = {
       sit:        { fps: 1, frames: ['BUp Walk.png'] },
       walk_down:  { fps: 8, frames: ['Down Walk1.png', 'Down Walk2.png', 'Down Walk3.png'] },
       walk_up:    { fps: 8, frames: ['Up Walk1.png', 'Up Walk2.png', 'Up Walk3.png'] },
-      walk_left:  { fps: 4, frames: ['L Walk1.png'] },
-      walk_right: { fps: 4, frames: ['R Walk1.png'] },
+      walk_left:  { fps: 4, frames: ['R Walk1.png'] },
+      walk_right: { fps: 4, frames: ['L Walk1.png'] },
     },
   },
 
   // ── Pim ────────────────────────────────────────────────────────────────────
-  // Files: Idle.png, Idle2.png, Work.png, BUp Walk.png,
-  //        Down Walk1.png, Down Walk2.png, L Walk.png, R Walk.png,
-  //        Up Walk1.png, Up Walk2.png
   Pim: {
     base:     '/characters/sheets/Pim',
     displayW: 70,
@@ -203,14 +181,12 @@ const FRAME_SEQ_CHARS: Partial<Record<string, FrameSeqDef>> = {
       sit:        { fps: 1, frames: ['Work.png'] },
       walk_down:  { fps: 6, frames: ['Down Walk1.png', 'Down Walk2.png'] },
       walk_up:    { fps: 6, frames: ['Up Walk1.png', 'Up Walk2.png'] },
-      walk_left:  { fps: 4, frames: ['L Walk.png'] },
-      walk_right: { fps: 4, frames: ['R Walk.png'] },
+      walk_left:  { fps: 4, frames: ['R Walk.png'] },
+      walk_right: { fps: 4, frames: ['L Walk.png'] },
     },
   },
 
   // ── Win ────────────────────────────────────────────────────────────────────
-  // Files: Idle1.png, Idle2.png, Work.png, BUp Walk.png,
-  //        Down Walk1.png, Down Walk2.png, LR1.png, LR2 Walk.png, UpWalk1.png
   Win: {
     base:     '/characters/sheets/Win',
     displayW: 70,
@@ -220,15 +196,12 @@ const FRAME_SEQ_CHARS: Partial<Record<string, FrameSeqDef>> = {
       sit:        { fps: 1, frames: ['Work.png'] },
       walk_down:  { fps: 6, frames: ['Down Walk1.png', 'Down Walk2.png'] },
       walk_up:    { fps: 4, frames: ['UpWalk1.png'] },
-      walk_left:  { fps: 6, frames: ['LR1.png', 'LR2 Walk.png'] },
-      walk_right: { fps: 6, frames: ['LR1.png', 'LR2 Walk.png'], flipX: true },
+      walk_left:  { fps: 6, frames: ['LR1.png', 'LR2 Walk.png'], flipX: true },
+      walk_right: { fps: 6, frames: ['LR1.png', 'LR2 Walk.png'] },
     },
   },
 
   // ── Nam ────────────────────────────────────────────────────────────────────
-  // Files: Idel Down Walk1.png (typo), Down Walk2.png, Work.png,
-  //        LR1.png, LR2 Walk.png, Up Walk1.png, Up Walk2.png
-  // No separate Idle.png → use 'Idel Down Walk1.png' for idle
   Nam: {
     base:     '/characters/sheets/Nam',
     displayW: 70,
@@ -238,14 +211,12 @@ const FRAME_SEQ_CHARS: Partial<Record<string, FrameSeqDef>> = {
       sit:        { fps: 1, frames: ['Work.png'] },
       walk_down:  { fps: 6, frames: ['Idel Down Walk1.png', 'Down Walk2.png'] },
       walk_up:    { fps: 6, frames: ['Up Walk1.png', 'Up Walk2.png'] },
-      walk_left:  { fps: 6, frames: ['LR1.png', 'LR2 Walk.png'] },
-      walk_right: { fps: 6, frames: ['LR1.png', 'LR2 Walk.png'], flipX: true },
+      walk_left:  { fps: 6, frames: ['LR1.png', 'LR2 Walk.png'], flipX: true },
+      walk_right: { fps: 6, frames: ['LR1.png', 'LR2 Walk.png'] },
     },
   },
 
   // ── Kom ────────────────────────────────────────────────────────────────────
-  // Files: Idle.png, Work.png, BUp Walk.png, Down Walk1.png, Down Walk2.png,
-  //        LR1.png, LR2 Walk.png, Up Walk1.png, Up Walk2.png
   Kom: {
     base:     '/characters/sheets/Kom',
     displayW: 70,
@@ -255,15 +226,12 @@ const FRAME_SEQ_CHARS: Partial<Record<string, FrameSeqDef>> = {
       sit:        { fps: 1, frames: ['Work.png'] },
       walk_down:  { fps: 6, frames: ['Down Walk1.png', 'Down Walk2.png'] },
       walk_up:    { fps: 6, frames: ['Up Walk1.png', 'Up Walk2.png'] },
-      walk_left:  { fps: 6, frames: ['LR1.png', 'LR2 Walk.png'] },
-      walk_right: { fps: 6, frames: ['LR1.png', 'LR2 Walk.png'], flipX: true },
+      walk_left:  { fps: 6, frames: ['LR1.png', 'LR2 Walk.png'], flipX: true },
+      walk_right: { fps: 6, frames: ['LR1.png', 'LR2 Walk.png'] },
     },
   },
 
   // ── Raps ───────────────────────────────────────────────────────────────────
-  // Files: Idle1.png, Work.png, Back.png, Down Walk1.png, Down Walk2.png,
-  //        L Walk.png, R Walk.png
-  // No BUp Walk → use Back.png for walk_up
   Raps: {
     base:     '/characters/sheets/Raps',
     displayW: 70,
@@ -273,31 +241,12 @@ const FRAME_SEQ_CHARS: Partial<Record<string, FrameSeqDef>> = {
       sit:        { fps: 1, frames: ['Work.png'] },
       walk_down:  { fps: 6, frames: ['Down Walk1.png', 'Down Walk2.png'] },
       walk_up:    { fps: 4, frames: ['Back.png'] },
-      walk_left:  { fps: 4, frames: ['L Walk.png'] },
-      walk_right: { fps: 4, frames: ['R Walk.png'] },
+      walk_left:  { fps: 4, frames: ['R Walk.png'] },
+      walk_right: { fps: 4, frames: ['L Walk.png'] },
     },
   },
 
-  // ── Ferin ──────────────────────────────────────────────────────────────────
-  // Sprite files not yet generated — using portrait fallback (null → PORTRAIT mode)
-  // Place portrait at: public/characters/Ferin.png (ภาพที่ B3 generate เอง)
-  // เมื่อมีไฟล์ sprite ให้ uncomment block นี้และใส่ชื่อไฟล์:
-  // Ferin: {
-  //   base:     '/characters/sheets/Ferin',
-  //   displayW: 70, displayH: 120,
-  //   animations: {
-  //     idle:       { fps: 1, frames: ['Idle.png'] },
-  //     sit:        { fps: 1, frames: ['Work.png'] },
-  //     walk_down:  { fps: 6, frames: ['Down Walk1.png', 'Down Walk2.png'] },
-  //     walk_up:    { fps: 6, frames: ['Up Walk1.png', 'Up Walk2.png'] },
-  //     walk_left:  { fps: 6, frames: ['LR1.png', 'LR2 Walk.png'] },
-  //     walk_right: { fps: 6, frames: ['LR1.png', 'LR2 Walk.png'], flipX: true },
-  //   },
-  // },
-
   // ── Fenton ─────────────────────────────────────────────────────────────────
-  // Files: Idle.png, Work.png, BUp Walk.png, Down Walk2.png,
-  //        Down Wlak1.png (typo), L2 Walk.png, R2 Walk.png, LR1.png
   Fenton: {
     base:     '/characters/sheets/Fenton',
     displayW: 70,
@@ -307,8 +256,8 @@ const FRAME_SEQ_CHARS: Partial<Record<string, FrameSeqDef>> = {
       sit:        { fps: 1, frames: ['Work.png'] },
       walk_down:  { fps: 6, frames: ['Down Wlak1.png', 'Down Walk2.png'] },
       walk_up:    { fps: 4, frames: ['BUp Walk.png'] },
-      walk_left:  { fps: 4, frames: ['L2 Walk.png'] },
-      walk_right: { fps: 4, frames: ['R2 Walk.png'] },
+      walk_left:  { fps: 4, frames: ['R2 Walk.png'] },
+      walk_right: { fps: 4, frames: ['L2 Walk.png'] },
     },
   },
 }
@@ -339,9 +288,9 @@ const LPC_CONFIG: SpriteConfig = {
   frameW: 64,
   animations: {
     walk_up:    { yStart: 448, frameH: 64, frames: 9, fps: 10 },
-    walk_left:  { yStart: 576, frameH: 64, frames: 9, fps: 10 },
+    walk_left:  { yStart: 640, frameH: 64, frames: 9, fps: 10 },
     walk_down:  { yStart: 512, frameH: 64, frames: 9, fps: 10 },
-    walk_right: { yStart: 640, frameH: 64, frames: 9, fps: 10 },
+    walk_right: { yStart: 576, frameH: 64, frames: 9, fps: 10 },
     idle:       { yStart: 512, frameH: 64, frames: 1, fps: 1  },
     sit:        { yStart: 512, frameH: 64, frames: 1, fps: 1  },
   },
@@ -534,7 +483,8 @@ export default function SpriteCharacter({
     let animFile: string
     let flipX = false
     if (state === 'walk') {
-      if (direction === 'right') { animFile = 'walk_left'; flipX = true }
+      if (direction === 'left') { animFile = 'walk_left'; flipX = true }
+      else if (direction === 'right') { animFile = 'walk_left'; flipX = false }
       else animFile = `walk_${direction}`
     } else {
       animFile = state

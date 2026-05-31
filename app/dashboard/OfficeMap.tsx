@@ -137,73 +137,6 @@ function Bubble({ text }: { text: string }) {
   )
 }
 
-// ─── Desk Tile ────────────────────────────────────────────────────────────────
-
-function DeskTile({ id, x, y, isWorking }: { id: string; x: number; y: number; isWorking: boolean }) {
-  // Cozy wood desk surface
-  return (
-    <div style={{
-      position: 'absolute',
-      left: `${x - 5.5}%`, top: `${y - 10}%`,
-      width: '11%', height: '15%',
-      zIndex: Math.round(y) - 2,
-      background: isWorking
-        ? 'linear-gradient(180deg, #5c3c1e 0%, #7c5228 40%, #6c4620 60%, #4a2f14 100%)'
-        : 'linear-gradient(180deg, #4d3319 0%, #664422 40%, #593b1d 60%, #3d2814 100%)',
-      border: isWorking ? '1.5px solid #f59e0b' : '1.5px solid #2d1a0c',
-      borderRadius: 4,
-      boxShadow: isWorking
-        ? '0 0 12px rgba(245,158,11,0.35), 0 3px 6px rgba(0,0,0,0.4)'
-        : '0 3px 6px rgba(0,0,0,0.3)',
-      display: 'flex', flexDirection: 'column', alignItems: 'center',
-      overflow: 'hidden',
-    }}>
-      {/* Wood grain */}
-      <div style={{
-        position: 'absolute', inset: 0, opacity: 0.12,
-        backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 8px, rgba(0,0,0,0.2) 9px)',
-      }} />
-
-      {/* Monitor */}
-      <div style={{
-        marginTop: '8%',
-        width: '56%', height: '44%',
-        background: isWorking ? '#080c14' : '#14171d',
-        border: isWorking ? '1.5px solid #22c55e' : '1.5px solid #475569',
-        borderRadius: 2,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        position: 'relative',
-        boxShadow: isWorking ? '0 0 8px rgba(34,197,94,0.3)' : 'none',
-      }}>
-        <div style={{ fontSize: 5, color: isWorking ? '#22c55e' : '#64748b', fontFamily: 'monospace' }}>
-          {isWorking ? '⚡' : '■'}
-        </div>
-      </div>
-
-      {/* Monitor Stand */}
-      <div style={{ width: '16%', height: '6%', background: '#22140a', flexShrink: 0 }} />
-
-      {/* Keyboard & Coffee Cup */}
-      <div style={{ flex: 1, width: '100%', position: 'relative' }}>
-        <div style={{
-          position: 'absolute', bottom: '22%', left: '50%', transform: 'translateX(-50%)',
-          width: '50%', height: '14%', background: '#1c0f07', borderRadius: 1, opacity: 0.6
-        }} />
-        {/* Coffee cup */}
-        <div style={{ position: 'absolute', bottom: '25%', right: '12%', fontSize: 5 }}>☕</div>
-        
-        {/* Name */}
-        <div style={{
-          position: 'absolute', bottom: '4%', left: 0, right: 0,
-          textAlign: 'center', fontSize: 6, fontWeight: 800,
-          color: isWorking ? '#f59e0b' : 'rgba(255,255,255,0.4)',
-          letterSpacing: 0.5, fontFamily: 'system-ui, sans-serif',
-          textShadow: '0 1px 2px rgba(0,0,0,0.8)',
-        }}>{id}</div>
-      </div>
-    </div>
-  )
-}
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
@@ -216,7 +149,7 @@ interface Props {
 }
 
 export default function OfficeMap({
-  agentIds, tasks, speeches, onClickAgent, spriteScale = 0.82,
+  agentIds, tasks, speeches, onClickAgent, spriteScale = 0.65,
 }: Props) {
   const [agents, setAgents] = useState<Record<string, AgentState>>(() => {
     const init: Record<string, AgentState> = {}
@@ -553,10 +486,6 @@ export default function OfficeMap({
         </div>
       </div>
 
-      {/* ── Desks (Visual furniture base) ── */}
-      {Object.entries(HOME_POS).map(([id, pos]) => (
-        <DeskTile key={id} id={id} x={pos.x} y={pos.y} isWorking={workingIds.has(id)} />
-      ))}
 
       {/* ── Characters (Drawn & Walked) ── */}
       {Object.values(agents).map(a => (
