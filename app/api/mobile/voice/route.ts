@@ -13,6 +13,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { sendTelegram } from '@/lib/notify/telegram'
 import { logError } from '@/lib/logging/error-tracker'
+import { parseVoiceCommand } from '@/lib/voice/voiceParser'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -24,29 +25,6 @@ interface VoiceCommandRequest {
   transcript: string
   userId: string
   apiKey?: string
-}
-
-// Simple intent parser
-function parseIntent(transcript: string): { intent: string; params: Record<string, any> } {
-  const lower = transcript.toLowerCase()
-
-  if (lower.includes('create') && (lower.includes('ticket') || lower.includes('issue'))) {
-    return { intent: 'create-ticket', params: { title: transcript } }
-  }
-  if (lower.includes('quote') || lower.includes('quotation')) {
-    return { intent: 'create-quotation', params: { query: transcript } }
-  }
-  if (lower.includes('email') || lower.includes('unread')) {
-    return { intent: 'check-email', params: {} }
-  }
-  if (lower.includes('morning') || lower.includes('brief')) {
-    return { intent: 'fetch-brief', params: {} }
-  }
-  if (lower.includes('status')) {
-    return { intent: 'check-status', params: {} }
-  }
-
-  return { intent: 'unknown', params: {} }
 }
 
 export async function POST(req: NextRequest) {
@@ -63,8 +41,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
     }
 
-    // ─── Parse intent ──────────────────────────────────────────────────────
-    const { intent, params } = parseIntent(transcript)
+    // ─── Parse intent (using regex-based NLP parser) ────────────────────────
+    const parsed = parseVoiceCommand(transcript)
+    const intent = parsed.intent.toLowerCase().replace('_', '-')
+    const params = parsed.payload
 
     // ─── Store command ────────────────────────────────────────────────────
     const { data: command } = await supabase

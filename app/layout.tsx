@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import VoiceButtonWrapper from './components/VoiceButtonWrapper'
 
 export const metadata: Metadata = {
   title: 'B3 Team Avenger',
@@ -9,7 +10,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="th">
-      <body>{children}</body>
+      <body>
+        {children}
+        <VoiceButtonWrapper />
+      </body>
     </html>
   )
 }

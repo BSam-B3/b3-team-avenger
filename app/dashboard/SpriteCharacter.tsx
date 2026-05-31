@@ -246,6 +246,21 @@ const FRAME_SEQ_CHARS: Partial<Record<string, FrameSeqDef>> = {
     },
   },
 
+  // ── Nhon ──────────────────────────────────────────────────────────────────
+  Nhon: {
+    base:     '/characters/sheets/Nhon',
+    displayW: 70,
+    displayH: 120,
+    animations: {
+      idle:       { fps: 1, frames: ['idle Front.png'] },
+      sit:        { fps: 1, frames: ['Work.png'] },
+      walk_down:  { fps: 8, frames: ['Down Walk1.png', 'Down Walk2.png', 'Down Walk3.png'] },
+      walk_up:    { fps: 8, frames: ['Up Walk1.png', 'Up Walk2.png', 'Up Walk3.png'] },
+      walk_left:  { fps: 6, frames: ['R Walk1.png', 'LR Walk2.png'], flipX: true },
+      walk_right: { fps: 6, frames: ['R Walk1.png', 'LR Walk2.png'] },
+    },
+  },
+
   // ── Fenton ─────────────────────────────────────────────────────────────────
   Fenton: {
     base:     '/characters/sheets/Fenton',
