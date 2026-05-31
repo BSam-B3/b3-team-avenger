@@ -12,6 +12,8 @@
 - SaaS/API cost optimization (cloud, tools, subscriptions)
 - ค่าใช้จ่าย hosting, API credits, software licenses
 - ROI analysis per vendor
+- Vercel/Supabase/AWS pricing models optimization
+- Dynamic API quota tracking and cost projection
 
 ## การทำงานร่วมกับทีม
 - **Metha (CFO)**: เช็ค budget ก่อน commit กับ vendor ทุกครั้ง

@@ -165,33 +165,33 @@ function DeskTile({ id, x, rowY, isWorking }: { id: string; x: number; rowY: num
       left: `${x}%`, top: `${rowY}%`,
       width: '11%', height: '16%',
       zIndex,
-      // Wood desk surface
+      // Premium White-Oak desk surface with glowing indicators
       background: isWorking
-        ? 'linear-gradient(180deg, #6b3a0a 0%, #8b4e12 40%, #7a4310 60%, #5c3208 100%)'
-        : 'linear-gradient(180deg, #5c3208 0%, #7a4310 40%, #6b3a0a 60%, #4a2806 100%)',
-      border: isWorking ? '1px solid #d97706' : '1px solid #3d2208',
-      borderRadius: 4,
+        ? 'linear-gradient(180deg, #fffbeb 0%, #fef3c7 40%, #fde68a 60%, #f59e0b 100%)'
+        : 'linear-gradient(180deg, #ffffff 0%, #f8fafc 40%, #f1f5f9 60%, #e2e8f0 100%)',
+      border: isWorking ? '1.5px solid #fb8500' : '1.5px solid #cbd5e1',
+      borderRadius: 6,
       boxShadow: isWorking
-        ? '0 0 10px rgba(217,119,6,0.25), 0 3px 6px rgba(0,0,0,0.5)'
-        : '0 3px 6px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,200,100,0.08)',
+        ? '0 0 15px rgba(251,133,0,0.35), 0 4px 8px rgba(0,0,0,0.15)'
+        : '0 4px 8px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.8)',
       display: 'flex', flexDirection: 'column', alignItems: 'center',
       overflow: 'hidden',
     }}>
-      {/* Wood grain lines */}
+      {/* Wood grain lines (Light Oak) */}
       <div style={{
-        position: 'absolute', inset: 0, opacity: 0.15,
-        backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 8px, rgba(0,0,0,0.3) 9px)',
+        position: 'absolute', inset: 0, opacity: 0.08,
+        backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 8px, rgba(0,0,0,0.1) 9px)',
       }} />
-      {/* Monitor — at TOP of desk (facing character who sits at bottom) */}
+      {/* Monitor — at TOP of desk */}
       <div style={{
         marginTop: '8%',
         width: '58%', height: '48%',
-        background: isWorking ? '#070f07' : '#080c14',
-        border: isWorking ? '1.5px solid #15803d' : '1.5px solid #1e3a5f',
+        background: isWorking ? '#0f172a' : '#f1f5f9',
+        border: isWorking ? '1.5px solid #ff9f1c' : '1.5px solid #94a3b8',
         borderRadius: 3,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         position: 'relative',
-        boxShadow: isWorking ? '0 0 8px rgba(34,197,94,0.4)' : '0 0 6px rgba(59,130,246,0.2)',
+        boxShadow: isWorking ? '0 0 10px rgba(255,159,28,0.45)' : '0 0 6px rgba(148,163,184,0.15)',
         zIndex: 1,
         flexShrink: 0,
       }}>
@@ -199,17 +199,17 @@ function DeskTile({ id, x, rowY, isWorking }: { id: string; x: number; rowY: num
         <div style={{
           position: 'absolute', inset: 0, borderRadius: 2,
           background: isWorking
-            ? 'linear-gradient(135deg, rgba(34,197,94,0.12), rgba(16,185,129,0.06))'
-            : 'linear-gradient(135deg, rgba(59,130,246,0.1), rgba(99,102,241,0.05))',
+            ? 'linear-gradient(135deg, rgba(255,159,28,0.18), rgba(251,133,0,0.08))'
+            : 'linear-gradient(135deg, rgba(148,163,184,0.08), rgba(203,213,225,0.04))',
         }} />
-        <div style={{ fontSize: 5, color: isWorking ? '#22c55e' : '#3b82f6', zIndex: 1, fontFamily: 'monospace' }}>
-          {isWorking ? '⚙' : '■'}
+        <div style={{ fontSize: 6, color: isWorking ? '#ff9f1c' : '#94a3b8', zIndex: 1, fontFamily: 'monospace', fontWeight: 'bold' }}>
+          {isWorking ? '⚡' : '💤'}
         </div>
       </div>
       {/* Monitor stand */}
       <div style={{
         width: '18%', height: '6%',
-        background: '#2d1a06',
+        background: '#cbd5e1',
         marginTop: 1,
         borderRadius: '0 0 2px 2px',
         flexShrink: 0,
@@ -218,7 +218,7 @@ function DeskTile({ id, x, rowY, isWorking }: { id: string; x: number; rowY: num
       <div style={{
         flex: 1, width: '100%',
         background: isWorking
-          ? 'linear-gradient(180deg, rgba(217,119,6,0.08) 0%, transparent 100%)'
+          ? 'linear-gradient(180deg, rgba(251,133,0,0.05) 0%, transparent 100%)'
           : 'transparent',
         position: 'relative',
       }}>
@@ -227,20 +227,20 @@ function DeskTile({ id, x, rowY, isWorking }: { id: string; x: number; rowY: num
           position: 'absolute', bottom: '22%', left: '50%',
           transform: 'translateX(-50%)',
           width: '45%', height: '14%',
-          background: '#2d1a06',
+          background: '#94a3b8',
           borderRadius: 2,
-          opacity: 0.6,
+          opacity: 0.4,
         }} />
         {/* Name label */}
         <div style={{
           position: 'absolute', bottom: '4%', left: 0, right: 0,
           textAlign: 'center',
-          fontSize: 6,
-          fontWeight: 700,
-          color: isWorking ? 'rgba(34,197,94,0.8)' : 'rgba(255,200,80,0.45)',
+          fontSize: 7,
+          fontWeight: 800,
+          color: isWorking ? '#fb8500' : '#475569',
           letterSpacing: 0.5,
           fontFamily: 'system-ui, sans-serif',
-          textShadow: '0 1px 2px rgba(0,0,0,0.8)',
+          textShadow: '0 1px 1px rgba(255,255,255,0.8)',
           lineHeight: 1,
           userSelect: 'none',
         }}>{id}</div>
@@ -271,16 +271,48 @@ export default function OfficeMap({
     return init
   })
 
-  // Sync isWorking from tasks
+  // Sync isWorking from tasks & immediately walk them back to desk when working (Game-like)
   useEffect(() => {
     setAgents(prev => {
       const next = { ...prev }
+      let changed = false
       agentIds.forEach(id => {
         if (!next[id]) return
         const working = tasks.find(t => t.assigned_to === id)?.status === 'in_progress'
-        next[id] = { ...next[id], isWorking: working }
+        const wasWorking = next[id].isWorking
+        
+        if (working !== wasWorking) {
+          changed = true
+          if (working) {
+            // ถ้าเริ่มงานปุ๊บ ให้เดินกลับมาทำงานที่โต๊ะตัวเองทันทีเหมือนเกม
+            const path = buildPath(next[id].pos, next[id].homePos)
+            if (path.length > 0) {
+              const [firstWpt, ...rest] = path
+              next[id] = {
+                ...next[id],
+                isWorking: true,
+                walkState: 'walk',
+                dir: getDir(next[id].pos, firstWpt),
+                _target: firstWpt,
+                _waypoints: rest,
+              }
+            } else {
+              next[id] = {
+                ...next[id],
+                isWorking: true,
+                walkState: 'sit',
+                dir: 'up',
+                pos: { ...next[id].homePos },
+                _target: undefined,
+                _waypoints: [],
+              }
+            }
+          } else {
+            next[id] = { ...next[id], isWorking: false }
+          }
+        }
       })
-      return next
+      return changed ? next : prev
     })
   }, [tasks, agentIds])
 
@@ -394,13 +426,14 @@ export default function OfficeMap({
   return (
     <div style={{
       position: 'relative', width: '100%', height: '100%',
-      background: '#0e1117',
+      // Bright Premium Light-Oak/Beige Modern co-working floor
+      background: '#f8fafc',
       overflow: 'hidden',
       backgroundImage: `
-        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px),
-        radial-gradient(ellipse at 50% 30%, rgba(120,80,20,0.04) 0%, transparent 60%),
-        radial-gradient(ellipse at 50% 70%, rgba(120,80,20,0.04) 0%, transparent 60%)
+        linear-gradient(rgba(148,163,184,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148,163,184,0.05) 1px, transparent 1px),
+        radial-gradient(ellipse at 50% 30%, rgba(245,158,11,0.04) 0%, transparent 60%),
+        radial-gradient(ellipse at 50% 70%, rgba(14,165,233,0.03) 0%, transparent 60%)
       `,
       backgroundSize: '48px 48px, 48px 48px, 100% 100%, 100% 100%',
     }}>
@@ -408,8 +441,8 @@ export default function OfficeMap({
       {/* ── Walls ── */}
       <div style={{
         position: 'absolute', inset: 0,
-        border: '2px solid #21262d',
-        boxShadow: 'inset 0 0 40px rgba(0,0,0,0.5)',
+        border: '2px solid #cbd5e1',
+        boxShadow: 'inset 0 0 30px rgba(148,163,184,0.15)',
         borderRadius: 4,
         pointerEvents: 'none',
       }} />
@@ -417,44 +450,44 @@ export default function OfficeMap({
       {/* ── Wall top decorations ── */}
       <div style={{
         position: 'absolute', top: 0, left: 0, right: 0, height: '8%',
-        background: 'linear-gradient(180deg, #161b22 0%, transparent 100%)',
-        borderBottom: '1px solid #21262d',
+        background: 'linear-gradient(180deg, #f1f5f9 0%, transparent 100%)',
+        borderBottom: '1px solid #cbd5e1',
         display: 'flex', alignItems: 'center', paddingLeft: 12, gap: 8,
       }}>
-        <div style={{ fontSize: 8, color: '#30363d', letterSpacing: 2 }}>9CJ CORP — FLOOR 4</div>
+        <div style={{ fontSize: 8, color: '#64748b', letterSpacing: 2, fontWeight: 700 }}>B3 TEAM AVENGER — FLOOR 4</div>
         <div style={{ flex: 1 }} />
-        <div style={{ fontSize: 8, color: '#22c55e33' }}>🌿 🌿</div>
+        <div style={{ fontSize: 8, color: '#10b98144' }}>🌿 🌿</div>
       </div>
 
       {/* ── Corridor label ── */}
       <div style={{
         position: 'absolute', left: 0, right: 0, top: '43%', height: '14%',
-        background: 'linear-gradient(180deg, transparent, rgba(255,255,255,0.012) 50%, transparent)',
-        borderTop: '1px solid #21262d33',
-        borderBottom: '1px solid #21262d33',
+        background: 'linear-gradient(180deg, transparent, rgba(241,245,249,0.5) 50%, transparent)',
+        borderTop: '1px solid rgba(203,213,225,0.4)',
+        borderBottom: '1px solid rgba(203,213,225,0.4)',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '0 3%',
         pointerEvents: 'none',
       }}>
         {/* Water cooler */}
-        <div style={{ fontSize: 14, opacity: 0.5 }}>🚰</div>
+        <div style={{ fontSize: 14, opacity: 0.7 }}>🚰</div>
         {/* Center corridor label */}
-        <div style={{ fontSize: 7, color: '#30363d', letterSpacing: 3 }}>· · · CORRIDOR · · ·</div>
+        <div style={{ fontSize: 7, color: '#64748b', letterSpacing: 3, fontWeight: 700 }}>· · · CORRIDOR · · ·</div>
         {/* Printer */}
-        <div style={{ fontSize: 14, opacity: 0.5 }}>🖨️</div>
+        <div style={{ fontSize: 14, opacity: 0.7 }}>🖨️</div>
       </div>
 
       {/* ── Common area bottom ── */}
       <div style={{
         position: 'absolute', left: 0, right: 0, bottom: 0, height: '10%',
-        background: 'linear-gradient(0deg, #161b22 0%, transparent 100%)',
-        borderTop: '1px solid #21262d',
+        background: 'linear-gradient(0deg, #f1f5f9 0%, transparent 100%)',
+        borderTop: '1px solid #cbd5e1',
         display: 'flex', alignItems: 'center', justifyContent: 'space-around',
         pointerEvents: 'none',
       }}>
-        <div style={{ fontSize: 12, opacity: 0.4 }}>☕</div>
-        <div style={{ fontSize: 7, color: '#30363d', letterSpacing: 2 }}>BREAK AREA</div>
-        <div style={{ fontSize: 12, opacity: 0.4 }}>🛋️</div>
+        <div style={{ fontSize: 12, opacity: 0.6 }}>☕</div>
+        <div style={{ fontSize: 7, color: '#64748b', letterSpacing: 2, fontWeight: 700 }}>BREAK AREA</div>
+        <div style={{ fontSize: 12, opacity: 0.6 }}>🛋️</div>
       </div>
 
       {/* ── Row A Desks ── */}
@@ -502,9 +535,9 @@ export default function OfficeMap({
 
             {/* Name */}
             <div style={{
-              textAlign: 'center', fontSize: 7, fontWeight: 700, marginTop: 1,
-              color: a.isWorking ? '#22c55e' : 'rgba(255,255,255,0.4)',
-              textShadow: '0 1px 3px rgba(0,0,0,0.9)',
+              textAlign: 'center', fontSize: 7, fontWeight: 800, marginTop: 1,
+              color: a.isWorking ? '#fb8500' : '#334155',
+              textShadow: '0 1px 2px rgba(255,255,255,0.8)',
               lineHeight: 1,
             }}>{a.id}</div>
           </div>
@@ -513,3 +546,4 @@ export default function OfficeMap({
     </div>
   )
 }
+

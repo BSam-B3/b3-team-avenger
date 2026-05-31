@@ -11,7 +11,7 @@
  */
 
 import { createClient } from '@supabase/supabase-js'
-import { readFileSync } from 'fs'
+import { readdirSync, readFileSync } from 'fs'
 import { join } from 'path'
 import { searchKnowledge, formatKnowledgeContext } from '@/lib/knowledge/search'
 
@@ -26,12 +26,16 @@ let _b3Profile: string | null = null
 function loadB3Profile(): string {
   if (_b3Profile !== null) return _b3Profile
   try {
-    _b3Profile = readFileSync(join(process.cwd(), 'agent-contexts', 'B3-Profile.md'), 'utf-8')
+    const dir = join(process.cwd(), 'agent-contexts')
+    const files = readdirSync(dir)
+    const b3File = files.find(f => f.startsWith('B3-Profile'))
+    _b3Profile = readFileSync(join(dir, b3File ?? 'B3-Profile.md'), 'utf-8')
   } catch {
     _b3Profile = 'เจ้านายชื่อ B3 (สุรพงษ์) — IT Support ที่ C.I.T. Computer'
   }
   return _b3Profile
 }
+
 
 /**
  * Load context for one agent.
@@ -110,8 +114,15 @@ export async function saveAgentContext(
 
 function loadFromFile(agentId: string): string {
   try {
-    return readFileSync(join(process.cwd(), 'agent-contexts', `${agentId}.md`), 'utf-8')
+    const dir = join(process.cwd(), 'agent-contexts')
+    const files = readdirSync(dir)
+    const matchedFile = files.find(f => f === `${agentId}.md` || f.startsWith(`${agentId} (`))
+    if (matchedFile) {
+      return readFileSync(join(dir, matchedFile), 'utf-8')
+    }
+    return `คุณคือ ${agentId} สมาชิกทีม B3 Team Avenger`
   } catch {
     return `คุณคือ ${agentId} สมาชิกทีม B3 Team Avenger`
   }
 }
+
